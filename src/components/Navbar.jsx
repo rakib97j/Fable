@@ -53,11 +53,11 @@ export default function Navbar() {
             className="flex items-center gap-2.5 group transition-all"
             aria-label="Fable Home"
           >
-            <div className="p-2 rounded-xl bg-linear-to-tr from-rose-600 via-rose-500 to-pink-500 text-white shadow-md shadow-rose-600/25 group-hover:scale-105 transition-transform duration-200">
+            <div className="p-2 rounded-xl bg-gradient-to-tr from-rose-600 via-rose-500 to-pink-500 text-white shadow-md shadow-rose-600/25 group-hover:scale-105 transition-transform duration-200">
               <BookOpen className="w-5 h-5" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-xl tracking-tight bg-linear-to-r from-zinc-900 via-rose-950 to-rose-700 dark:from-white dark:via-zinc-100 dark:to-rose-400 bg-clip-text text-transparent leading-none">
+              <span className="font-serif font-bold text-xl tracking-tight bg-gradient-to-r from-rose-600 via-rose-500 to-pink-500 bg-clip-text text-transparent leading-none">
                 Fable
               </span>
             </div>
@@ -151,7 +151,7 @@ export default function Navbar() {
               </Button>
               <Button
                 onClick={toggleLogin}
-                className="bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white font-medium shadow-md shadow-rose-600/25 transition-all"
+                className="bg-gradient-to-r from-rose-600 via-rose-500 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white font-medium shadow-md shadow-rose-600/25 transition-all"
               >
                 Join
               </Button>
@@ -240,7 +240,7 @@ export default function Navbar() {
                 <div className="flex flex-col gap-2.5 pt-2">
                   <Button
                     onClick={toggleLogin}
-                    className="w-full bg-rose-600 hover:bg-rose-500 text-white font-medium py-3.5 rounded-xl shadow-md flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-r from-rose-600 via-rose-500 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white font-medium py-3.5 rounded-xl shadow-md shadow-rose-600/25 flex items-center justify-center gap-2"
                   >
                     <LogIn className="w-4 h-4" />
                     <span>Join Now</span>

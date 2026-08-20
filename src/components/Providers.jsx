@@ -15,9 +15,9 @@ export function Providers({ children }) {
       attribute="class"
       defaultTheme="dark"
       enableSystem={false}
-      forcedTheme={undefined}
     >
-      {children}
+      {mounted ? children : <div style={{ visibility: "hidden" }}>{children}</div>}
     </NextThemesProvider>
   );
 }
+

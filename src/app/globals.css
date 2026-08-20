@@ -1,4 +1,8 @@
 @import "tailwindcss";
 @import "@heroui/styles"; 
 
+@theme {
+  --font-serif: var(--font-playfair), Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
 
