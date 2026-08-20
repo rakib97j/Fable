@@ -72,10 +72,10 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="flex flex-col gap-4">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-600 via-rose-500 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-600/25">
+              <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-rose-600 via-rose-500 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-600/25">
                 <BookOpen className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold font-serif bg-gradient-to-r from-rose-600 via-rose-500 to-pink-500 bg-clip-text text-transparent">
+              <span className="text-xl font-bold font-serif bg-linear-to-r from-rose-600 via-rose-500 to-pink-500 bg-clip-text text-transparent">
                 Fable
               </span>
             </Link>
@@ -151,7 +151,7 @@ export default function Footer() {
               </div>
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-rose-600 via-rose-500 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white text-sm font-medium py-2.5 rounded-lg transition-all flex items-center justify-center gap-2 shadow-md shadow-rose-600/25"
+                className="w-full bg-linear-to-r from-rose-600 via-rose-500 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white text-sm font-medium py-2.5 rounded-lg transition-all flex items-center justify-center gap-2 shadow-md shadow-rose-600/25"
               >
                 <span>Subscribe</span>
                 <Send className="w-4 h-4" />
@@ -169,7 +169,7 @@ export default function Footer() {
         <div className="mt-12 pt-8 border-t border-zinc-200 dark:border-zinc-800/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500 dark:text-zinc-400">
           <p>© {new Date().getFullYear()} Fable. All rights reserved.</p>
           <p className="flex items-center gap-1">
-            Built with <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" /> for book lovers everywhere.
+            Devloper: [rakib97j]
           </p>
         </div>
       </div>

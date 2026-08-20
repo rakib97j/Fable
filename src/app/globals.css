@@ -6,3 +6,21 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Swiper custom pagination styles */
+.hero-swiper .swiper-pagination-bullets {
+  bottom: 24px !important;
+}
+
+.hero-swiper .swiper-pagination-bullet {
+  background: #71717a !important;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.hero-swiper .swiper-pagination-bullet-active {
+  background: #3b82f6 !important;
+  opacity: 1;
+  width: 24px !important;
+  border-radius: 9999px !important;
+}
+

@@ -31,8 +31,8 @@ export default function EbookGenres() {
   accentTag: "text-rose-400",
 },
 {
-  id: "sci-fi",
-  title: "Sci-Fi",
+  id: "Space",
+  title: "Space",
   tag: "GENRE",
   image: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=1000&auto=format&fit=crop",
   bgGradient: "from-blue-950/90  to-transparent",
