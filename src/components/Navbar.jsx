@@ -48,20 +48,16 @@ export default function Navbar() {
         
         {/* Left: Brand Logo & Name */}
         <div className="flex items-center gap-8">
-          <Link
-            href="/"
-            className="flex items-center gap-2.5 group transition-all"
-            aria-label="Fable Home"
-          >
-            <div className="p-2 rounded-xl bg-gradient-to-tr from-rose-600 via-rose-500 to-pink-500 text-white shadow-md shadow-rose-600/25 group-hover:scale-105 transition-transform duration-200">
+          <div>
+          <Link href="/" className="inline-flex items-center gap-2.5 group transition-transform hover:scale-105">
+            <div className="p-1.5 rounded-xl bg-linear-to-tr from-rose-600 via-rose-500 to-pink-500 text-white shadow-lg shadow-rose-600/30">
               <BookOpen className="w-5 h-5" />
             </div>
-            <div className="flex flex-col">
-              <span className="font-serif font-bold text-xl tracking-tight bg-gradient-to-r from-rose-600 via-rose-500 to-pink-500 bg-clip-text text-transparent leading-none">
-                Fable
-              </span>
-            </div>
+            <span className="font-serif font-bold text-xl tracking-tight bg-linear-to-r from-rose-500 via-rose-400 to-pink-500 bg-clip-text text-transparent">
+              Fable
+            </span>
           </Link>
+        </div>
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center gap-1">
@@ -141,20 +137,25 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-2">
+              
+              <Link href="/auth/signin">
               <Button
                 variant="light"
-                onClick={toggleLogin}
+                
                 className="font-medium text-zinc-700 dark:text-zinc-300 hover:text-rose-600 dark:hover:text-rose-400"
               >
                 <LogIn className="w-4 h-4 mr-1.5 text-zinc-500" />
                 Log In
-              </Button>
+              </Button></Link>
+
+              
+              <Link href="/auth/signup">
               <Button
-                onClick={toggleLogin}
-                className="bg-gradient-to-r from-rose-600 via-rose-500 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white font-medium shadow-md shadow-rose-600/25 transition-all"
+                className="bg-linear-to-r from-rose-600 via-rose-500 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white font-medium shadow-md shadow-rose-600/25 transition-all"
               >
                 Join
               </Button>
+              </Link>
             </div>
           )}
         </div>
@@ -239,7 +240,9 @@ export default function Navbar() {
               ) : (
                 <div className="flex flex-col gap-2.5 pt-2">
                   <Button
-                    onClick={toggleLogin}
+                    as={Link}
+                    href="/auth/signup"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="w-full bg-gradient-to-r from-rose-600 via-rose-500 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white font-medium py-3.5 rounded-xl shadow-md shadow-rose-600/25 flex items-center justify-center gap-2"
                   >
                     <LogIn className="w-4 h-4" />

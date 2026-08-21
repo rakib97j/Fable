@@ -1,0 +1,25 @@
+import { betterAuth } from "better-auth";
+import { MongoClient } from "mongodb";
+import { mongodbAdapter } from "better-auth/adapters/mongodb";
+
+const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/fable_db";
+const client = new MongoClient(mongoUri);
+const db = client.db(process.env.AUTH_DB_NAME || "fable_db");
+
+export const auth = betterAuth({
+  emailAndPassword: { 
+    enabled: true, 
+  }, 
+  database: mongodbAdapter(db, {
+    client
+  }),
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        defaultValue: "reader",
+        required: false
+      }
+    }
+  }
+});
