@@ -1,3 +1,9 @@
+export const metadata = {
+  title: 'Writer || Add E-book',
+  description: 'This is Fable writer dashboard add e-books Page',
+}
+
+
 export default function WriterAddEbookPage() {
   return (
     <div className="space-y-6 max-w-2xl">

@@ -2,6 +2,12 @@ import React from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 
+export const metadata = {
+  title: 'Writer || Manage E-book',
+  description: 'This is Fable writer dashboard manage e-books Page',
+}
+
+
 export default function WriterManageEbooksPage() {
   return (
     <div className="space-y-8">

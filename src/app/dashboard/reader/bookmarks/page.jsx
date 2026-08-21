@@ -1,3 +1,9 @@
+export const metadata = {
+  title: 'Reader || Bookmarks',
+  description: 'This is Fable Reader Bookmarks history',
+}
+
+
 export default function ReaderBookmarksPage() {
   return (
     <div className="space-y-6">

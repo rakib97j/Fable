@@ -1,3 +1,11 @@
+
+
+export const metadata = {
+  title: 'Fable || Reader',
+  description: 'This is Fable Reader Dashboard',
+}
+
+
 export default function ReaderDashboardPage() {
   return (
     <div className="space-y-6">

@@ -1,3 +1,8 @@
+export const metadata = {
+  title: 'Admin || Analytics',
+  description: 'This is Admin Dashboard Page',
+}
+
 export default function AdminAnalyticsOverviewPage() {
   return (
     <div className="space-y-6">

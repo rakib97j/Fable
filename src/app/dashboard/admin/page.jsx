@@ -1,3 +1,10 @@
+
+
+export const metadata = {
+  title: 'Fable || Admin',
+  description: 'This is Admin Page',
+}
+
 export default function AdminDashboardPage() {
   return (
     <div className="space-y-6">

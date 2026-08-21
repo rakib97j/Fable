@@ -1,3 +1,11 @@
+export const metadata = {
+  title: 'Writer || Seles',
+  description: 'This is Fable writer Seles history',
+}
+
+
+
+
 export default function WriterSalesHistoryPage() {
   return (
     <div className="space-y-6">

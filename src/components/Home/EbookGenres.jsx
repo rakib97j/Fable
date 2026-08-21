@@ -57,7 +57,7 @@ export default function EbookGenres() {
   ];
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-4 py-8 sm:py-12">
+    <section className="w-full py-12 md:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Title Header */}
       <div className="flex items-center gap-2.5 mb-6">
         <Sparkles className="w-5 h-5 text-rose-600 dark:text-rose-400" />

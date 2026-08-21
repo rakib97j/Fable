@@ -1,4 +1,8 @@
 import React from 'react';
+export const metadata = {
+  title: 'Fable || E-Books',
+  description: 'This is Admin Page',
+}
 
 const EBooksPage = () => {
     return (

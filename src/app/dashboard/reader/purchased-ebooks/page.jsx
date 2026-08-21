@@ -1,3 +1,9 @@
+export const metadata = {
+  title: 'Reader || Ebooks',
+  description: 'This is Fable Reader E-Books',
+}
+
+
 export default function ReaderPurchasedEbooksPage() {
   return (
     <div className="space-y-6">

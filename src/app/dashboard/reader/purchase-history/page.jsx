@@ -1,3 +1,10 @@
+export const metadata = {
+  title: 'Reader || Purchase',
+  description: 'This is Fable Reader Purchase history',
+}
+
+
+
 export default function ReaderPurchaseHistoryPage() {
   return (
     <div className="space-y-6">
