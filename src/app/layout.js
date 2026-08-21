@@ -2,7 +2,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Providers } from "@/components/Providers";
+
 
 const inter = Inter({
   variable: "--font-inter",
@@ -27,11 +27,11 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-[#0d0d0f] text-zinc-900 dark:text-zinc-100 font-sans transition-colors duration-200">
-        <Providers>
+        
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
-        </Providers>
+        
       </body>
     </html>
   );
