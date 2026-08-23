@@ -1,15 +1,21 @@
 import React from 'react';
-export const metadata = {
-  title: 'Fable || E-Books',
-  description: 'This is Admin Page',
-}
+import EBooksClientPage from '@/components/EBooks/EBooksClientPage';
+import { getEBooks } from '@/lib/actions/eBooks';
 
-const EBooksPage = () => {
-    return (
-        <div>
-            this is e book 
-        </div>
-    );
+export const metadata = {
+  title: 'Fable || Browse Ebooks',
+  description: 'Search titles, filter by genre, price and availability. Every ebook here is original.',
 };
 
-export default EBooksPage;
+const EBooksPage = async () => {
+  const result = await getEBooks();
+  const initialData = result?.success && Array.isArray(result.data) ? result.data : [];
+
+  return (
+    <main className="min-h-screen bg-[#0a0a0c]">
+      <EBooksClientPage initialData={initialData} />
+    </main>
+  );
+};
+
+export default EBooksPage;

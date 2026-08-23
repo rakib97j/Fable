@@ -210,7 +210,9 @@ export default function AddEbookForm() {
       price: formData.isFree ? 0 : parseFloat(formData.price || 0),
       isFree: formData.isFree,
       description: formData.description,
-      coverImage: coverImageUrl, 
+      coverImage: coverImageUrl,
+      createdAt: new Date().toISOString(),
+      date: new Date().toISOString(),
     };
 
     const result = await AddEBooks(payload);
