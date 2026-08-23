@@ -58,7 +58,7 @@ export const GetEBooks = getEBooks;
 
 
 
-// for writer Ebooks 
+// for writer manage Ebooks 
 export const getEBooksByWriter = async (writerId) => {
     try {
         if (!baseUrl || !writerId) return { success: true, data: [] };
@@ -78,3 +78,27 @@ export const getEBooksByWriter = async (writerId) => {
     }
 };
 export const GetWriterEBooks = getEBooksByWriter;
+
+
+
+
+// Random ebooks for Featured E-Books
+export const getRandomEBooks = async () => {
+    try {
+        const url = `${baseUrl}/api/e-books/random`
+        const res = await fetch(url, { cache: 'no-store' });
+
+        if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data)) return { success: true, data };
+            if (Array.isArray(data?.data)) return { success: true, data: data.data };
+        }
+
+        return { success: true, data: [] };
+    } catch (error) {
+        console.error("Error fetching random e-books:", error);
+        return { success: false, data: [], error: error.message };
+    }
+};
+export const GetRandomEBooks = getRandomEBooks;
+
