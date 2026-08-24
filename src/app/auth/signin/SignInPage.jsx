@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/lib/auth-client";
-import {  ArrowRight } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -13,6 +13,7 @@ export default function SignInPage() {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -59,7 +60,7 @@ export default function SignInPage() {
           className="object-cover object-center scale-105 transition-transform duration-1000"
           sizes="50vw"
         />
-        {/* Subtle Dark Vignette & Gradient Overlays */}
+        {/* Dark Vignette & Gradient Overlays */}
         <div className="absolute inset-0 bg-linear-to-t from-[#0a0a0c] via-black/40 to-transparent" />
         <div className="absolute inset-0 bg-linear-to-r from-transparent via-transparent to-[#0a0a0c] opacity-80" />
 
@@ -77,8 +78,6 @@ export default function SignInPage() {
       {/* Right Column - Form Section */}
       <div className="w-full lg:w-1/2 flex flex-col justify-between px-6 sm:px-12 lg:px-16 xl:px-24 py-10 lg:py-10 min-h-screen z-10">
         
-        
-
         {/* Main Content Form */}
         <div className="max-w-md w-full mx-auto my-auto py-8">
           
@@ -111,15 +110,15 @@ export default function SignInPage() {
                   name="email"
                   type="email"
                   required
-                  // placeholder="name@example.com"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full bg-[#121216] border border-zinc-800/90  px-4 py-3.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 transition-all"
+                  placeholder="name@example.com"
+                  className="w-full bg-[#121216] border border-zinc-800/90 px-4 py-3.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 transition-all"
                 />
               </div>
             </div>
 
-            {/* PASSWORD */}
+            {/* PASSWORD WITH EYE TOGGLE */}
             <div className="space-y-2">
               <label htmlFor="password" className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
                 PASSWORD
@@ -128,13 +127,21 @@ export default function SignInPage() {
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
-                  
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full bg-[#121216] border border-zinc-800/90 rounded-x px-4 py-3.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 transition-all"
+                  placeholder="••••••••"
+                  className="w-full bg-[#121216] border border-zinc-800/90 px-4 py-3.5 pr-11 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 transition-all"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors p-1 cursor-pointer"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4 text-rose-400" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
@@ -142,7 +149,7 @@ export default function SignInPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-6 py-4 px-6  font-semibold text-sm text-white bg-linear-to-r from-rose-500 via-rose-600 to-pink-600 hover:opacity-95 shadow-xl shadow-rose-600/25 active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full mt-6 py-4 px-6 font-semibold text-sm text-white bg-linear-to-r from-rose-500 via-rose-600 to-pink-600 hover:opacity-95 shadow-xl shadow-rose-600/25 active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -164,14 +171,12 @@ export default function SignInPage() {
           </div>
 
           {/* DEMO INFO BADGE */}
-          <div className="mt-6 p-3  bg-[#121216] border border-zinc-800/70 text-xs font-mono text-zinc-400 flex items-center gap-2">
+          <div className="mt-6 p-3 bg-[#121216] border border-zinc-800/70 text-xs font-mono text-zinc-400 flex items-center gap-2">
             <span className="text-rose-400 font-semibold">Admin demo:</span>
             <span>admin@fable.com / admin@fable.com</span>
           </div>
 
         </div>
-
-       
       </div>
     </div>
   );

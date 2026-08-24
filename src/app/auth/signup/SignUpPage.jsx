@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/auth-client";
-import { BookOpen, Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
+import { BookOpen, Sparkles, ArrowRight, CheckCircle2, Eye, EyeOff, Upload, Camera, User } from "lucide-react";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -13,16 +13,29 @@ export default function SignUpPage() {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
+    image: "",
     password: "",
     confirmPassword: "",
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Password visibility toggles
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (error) setError("");
+  };
+
+  const handleImageFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setFormData((prev) => ({ ...prev, image: imageUrl }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -40,6 +53,7 @@ export default function SignUpPage() {
         email: formData.email,
         password: formData.password,
         name: formData.fullName,
+        image: formData.image,
         role: role,
         callbackURL: "/",
       });
@@ -62,9 +76,6 @@ export default function SignUpPage() {
       {/* Left Column - Form Section */}
       <div className="w-full lg:w-1/2 flex flex-col justify-between px-6 sm:px-12 lg:px-16 xl:px-24 py-10 lg:py-12 min-h-screen z-10">
         
-       
-        
-
         {/* Main Content Form */}
         <div className="max-w-md w-full mx-auto my-auto py-8">
           
@@ -81,10 +92,68 @@ export default function SignUpPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="p-3.5  bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-medium">
+              <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-medium">
                 {error}
               </div>
             )}
+
+            {/* PROFILE IMAGE / AVATAR FIELD */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
+                PROFILE PHOTO (OPTIONAL)
+              </label>
+              <div className="flex items-center gap-4 bg-[#121216] border border-zinc-800/90 p-3">
+                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-zinc-900 border border-zinc-700 shrink-0">
+                  {formData.image ? (
+                    <Image
+                      src={formData.image}
+                      alt="Avatar preview"
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-zinc-500">
+                      <User className="w-6 h-6" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 space-y-1">
+                  <input
+                    type="text"
+                    name="image"
+                    value={formData.image}
+                    onChange={handleInputChange}
+                    placeholder="Enter image URL..."
+                    className="w-full bg-[#0a0a0c] border border-zinc-800/80 px-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-rose-500/80"
+                  />
+                  <div className="flex items-center gap-2">
+                    <label
+                      htmlFor="signup-avatar-file"
+                      className="text-[11px] font-medium text-rose-400 hover:text-rose-300 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Camera className="w-3 h-3" />
+                      <span>Or upload photo</span>
+                    </label>
+                    <input
+                      id="signup-avatar-file"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageFileChange}
+                    />
+                    {formData.image && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData((prev) => ({ ...prev, image: "" }))}
+                        className="text-[11px] text-zinc-500 hover:text-zinc-300 ml-auto"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
             
             {/* FULL NAME */}
             <div className="space-y-2">
@@ -97,10 +166,10 @@ export default function SignUpPage() {
                   name="fullName"
                   type="text"
                   required
-                  
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  className="w-full bg-[#121216] border border-zinc-800/90  px-4 py-3.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 transition-all"
+                  placeholder="John Doe"
+                  className="w-full bg-[#121216] border border-zinc-800/90 px-4 py-3.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 transition-all"
                 />
               </div>
             </div>
@@ -116,46 +185,66 @@ export default function SignUpPage() {
                   name="email"
                   type="email"
                   required
-                  
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full bg-[#121216] border border-zinc-800/90  px-4 py-3.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 transition-all"
+                  placeholder="name@example.com"
+                  className="w-full bg-[#121216] border border-zinc-800/90 px-4 py-3.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 transition-all"
                 />
               </div>
             </div>
 
-            {/* PASSWORD & CONFIRM PASSWORD */}
+            {/* PASSWORD & CONFIRM PASSWORD WITH EYE TOGGLE */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label htmlFor="password" className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
                   PASSWORD
                 </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="w-full bg-[#121216] border border-zinc-800/90  px-4 py-3.5 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 transition-all"
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    placeholder="••••••••"
+                    className="w-full bg-[#121216] border border-zinc-800/90 px-4 py-3.5 pr-10 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors p-1 cursor-pointer"
+                    title={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4 text-rose-400" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="confirmPassword" className="text-xs font-semibold tracking-wider text-zinc-400 uppercase">
                   CONFIRM
                 </label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className="w-full bg-[#121216] border border-zinc-800/90  px-4 py-3.5 text-sm text-zinc-100  focus:outline-none focus:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 transition-all"
-                />
+                <div className="relative">
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    placeholder="••••••••"
+                    className="w-full bg-[#121216] border border-zinc-800/90 px-4 py-3.5 pr-10 text-sm text-zinc-100 focus:outline-none focus:border-rose-500/80 focus:ring-2 focus:ring-rose-500/20 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors p-1 cursor-pointer"
+                    title={showConfirmPassword ? "Hide password" : "Show password"}
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4 text-rose-400" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -170,7 +259,7 @@ export default function SignUpPage() {
                 <button
                   type="button"
                   onClick={() => setRole("reader")}
-                  className={`relative text-left p-4  border transition-all duration-200 cursor-pointer ${
+                  className={`relative text-left p-4 border transition-all duration-200 cursor-pointer ${
                     role === "reader"
                       ? "border-rose-500/90 bg-rose-500/10 ring-1 ring-rose-500/50"
                       : "border-zinc-800/80 bg-[#121216] hover:border-zinc-700/80"
@@ -189,7 +278,7 @@ export default function SignUpPage() {
                 <button
                   type="button"
                   onClick={() => setRole("writer")}
-                  className={`relative text-left p-4  border transition-all duration-200 cursor-pointer ${
+                  className={`relative text-left p-4 border transition-all duration-200 cursor-pointer ${
                     role === "writer"
                       ? "border-rose-500/90 bg-rose-500/10 ring-1 ring-rose-500/50"
                       : "border-zinc-800/80 bg-[#121216] hover:border-zinc-700/80"
@@ -210,7 +299,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-6 py-4 px-6  font-semibold text-sm text-white bg-linear-to-r from-rose-500 via-rose-600 to-pink-600 hover:opacity-95 shadow-xl shadow-rose-600/25 active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full mt-6 py-4 px-6 font-semibold text-sm text-white bg-linear-to-r from-rose-500 via-rose-600 to-pink-600 hover:opacity-95 shadow-xl shadow-rose-600/25 active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -232,8 +321,6 @@ export default function SignUpPage() {
           </div>
 
         </div>
-
-        
       </div>
 
       {/* Right Column - Visual Image Artwork Banner */}
@@ -246,11 +333,11 @@ export default function SignUpPage() {
           className="object-cover object-center scale-105 transition-transform duration-1000"
           sizes="50vw"
         />
-        {/* Subtle Dark Vignette & Edge Shadow Gradient */}
+        {/* Dark Vignette & Edge Shadow Gradient */}
         <div className="absolute inset-0 bg-linear-to-t from-[#0a0a0c] via-transparent to-black/30" />
         <div className="absolute inset-0 bg-linear-to-r from-[#0a0a0c] via-transparent to-transparent opacity-80" />
 
-        {/* Floating Highlight Badge (Extra Special Detail) */}
+        {/* Floating Highlight Badge */}
         <div className="absolute bottom-12 left-12 right-12 z-20 backdrop-blur-xl bg-zinc-950/60 border border-zinc-800/80 p-6 rounded-2xl shadow-2xl max-w-lg">
           <div className="flex items-center gap-2 text-rose-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <Sparkles className="w-4 h-4" />

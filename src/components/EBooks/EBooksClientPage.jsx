@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Search, Star, BookOpen, RotateCcw, Filter } from "lucide-react";
 import { getEBooks } from "@/lib/actions/eBooks";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 const GENRES = [
   "All",
@@ -126,7 +127,7 @@ export default function EBooksClientPage({ initialData = [] }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-zinc-100 py-10 px-4 sm:px-6 lg:px-12 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#0a0a0c] text-zinc-100 py-10 px-4 sm:px-6 lg:px-12 max-w-7xl mx-auto font-sans selection:bg-rose-500 selection:text-white">
       {/* Header Section */}
       <div className="mb-8">
         <span className="text-xs font-semibold tracking-[0.25em] uppercase text-rose-500 block mb-2 font-mono">
@@ -205,7 +206,7 @@ export default function EBooksClientPage({ initialData = [] }) {
             </select>
           </div>
 
-          {/* Sort Dropdown (Highlighted with thin Red outline like reference image) */}
+          {/* Sort Dropdown */}
           <div className="w-full sm:w-auto">
             <select
               value={sortBy}
@@ -241,12 +242,20 @@ export default function EBooksClientPage({ initialData = [] }) {
           {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
             <div
               key={n}
-              className="bg-[#121215] border border-zinc-800/60 p-4 space-y-4 animate-pulse"
+              className="bg-[#121215] border border-zinc-800/80 p-4 space-y-4 rounded-sm animate-pulse flex flex-col justify-between"
             >
-              <div className="aspect-3/4 bg-zinc-800/50 w-full" />
-              <div className="h-4 bg-zinc-800/60 rounded w-3/4" />
-              <div className="h-3 bg-zinc-800/40 rounded w-1/2" />
-              <div className="h-4 bg-zinc-800/60 rounded w-1/3 pt-2" />
+              <div className="space-y-4">
+                <Skeleton className="aspect-3/4 w-full bg-zinc-800/60 rounded-none" />
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-3/4 bg-zinc-800/80" />
+                  <Skeleton className="h-3.5 w-1/2 bg-zinc-800/60" />
+                  <Skeleton className="h-3 w-5/6 bg-zinc-800/40" />
+                </div>
+              </div>
+              <div className="pt-3 border-t border-zinc-800/60 flex justify-between items-center">
+                <Skeleton className="h-4 w-16 bg-zinc-800/60" />
+                <Skeleton className="h-5 w-12 bg-zinc-800/80" />
+              </div>
             </div>
           ))}
         </div>
@@ -256,7 +265,7 @@ export default function EBooksClientPage({ initialData = [] }) {
           <BookOpen className="w-12 h-12 text-zinc-600 mx-auto mb-3 stroke-[1.5]" />
           <h3 className="text-lg font-serif text-zinc-200 mb-1">No eBooks found</h3>
           <p className="text-xs text-zinc-400 max-w-sm mx-auto mb-5">
-            We couldn t find any ebook matching your filters. Try adjusting your search query or price range.
+            We couldn't find any ebook matching your filters. Try adjusting your search query or price range.
           </p>
           <button
             onClick={handleResetFilters}
