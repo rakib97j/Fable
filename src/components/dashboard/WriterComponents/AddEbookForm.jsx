@@ -211,6 +211,7 @@ export default function AddEbookForm() {
       isFree: formData.isFree,
       description: formData.description,
       coverImage: coverImageUrl,
+      status: "pending",
       createdAt: new Date().toISOString(),
       date: new Date().toISOString(),
     };
@@ -222,7 +223,7 @@ export default function AddEbookForm() {
     if (result?.success) {
       setSubmitStatus({
         type: "success",
-        message: `"${formData.title}" has been successfully created! Redirecting to Manage Ebooks...`,
+        message: `"${formData.title}" has been submitted successfully with status "pending"! Redirecting to Manage Ebooks...`,
       });
 
       // Reset form on success (keeping logged-in writer name)

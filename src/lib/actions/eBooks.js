@@ -102,3 +102,65 @@ export const getRandomEBooks = async () => {
 };
 export const GetRandomEBooks = getRandomEBooks;
 
+// Update writer e-book
+export const updateWriterEBook = async (id, updateData) => {
+    try {
+        const payload = { ...updateData };
+        delete payload._id;
+
+        const primaryUrl = baseUrl ? `${baseUrl}/api/e-books/${id}` : `/api/e-books/${id}`;
+        let res = await fetch(primaryUrl, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            cache: 'no-store'
+        });
+
+        if (!res.ok) {
+            const adminUrl = baseUrl ? `${baseUrl}/api/admin/e-books/${id}` : `/api/admin/e-books/${id}`;
+            res = await fetch(adminUrl, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+                cache: 'no-store'
+            });
+        }
+
+        if (res.ok) {
+            const data = await res.json().catch(() => ({}));
+            return { success: true, data };
+        }
+        return { success: false, message: `Failed to update e-book (${res.status})` };
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
+};
+
+// Delete writer e-book
+export const deleteWriterEBook = async (id) => {
+    try {
+        const primaryUrl = baseUrl ? `${baseUrl}/api/e-books/${id}` : `/api/e-books/${id}`;
+        let res = await fetch(primaryUrl, {
+            method: 'DELETE',
+            cache: 'no-store'
+        });
+
+        if (!res.ok) {
+            const adminUrl = baseUrl ? `${baseUrl}/api/admin/e-books/${id}` : `/api/admin/e-books/${id}`;
+            res = await fetch(adminUrl, {
+                method: 'DELETE',
+                cache: 'no-store'
+            });
+        }
+
+        if (res.ok) {
+            const data = await res.json().catch(() => ({}));
+            return { success: true, data };
+        }
+        return { success: false, message: `Failed to delete e-book (${res.status})` };
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
+};
+
+
