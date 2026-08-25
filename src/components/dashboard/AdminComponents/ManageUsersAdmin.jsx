@@ -15,14 +15,23 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-import { getUsers } from "@/lib/actions/adminAction";
-import { Loader2 } from "lucide-react";
+import { getUsers, updateUserRole, deleteUser } from "@/lib/actions/adminAction";
+import { Loader2, CheckCircle2, AlertCircle, X, AlertTriangle } from "lucide-react";
 
 export default function ManageUsersAdmin() {
   const [activeTab, setActiveTab] = useState("writer"); // 'writer' | 'reader'
   const [searchTerm, setSearchTerm] = useState("");
   const [usersList, setUsersList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [deletingUser, setDeletingUser] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [notification, setNotification] = useState(null);
+
+  const showToast = (type, message) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 3500);
+  };
 
   // Fetch users from database endpoint /api/users
   const fetchUsers = async () => {
@@ -46,6 +55,54 @@ export default function ManageUsersAdmin() {
       setUsersList([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRoleChange = async (userId, newRole) => {
+    if (!userId || !newRole) return;
+    setUpdatingId(userId);
+
+    try {
+      const result = await updateUserRole(userId, newRole);
+      if (result?.success) {
+        showToast("success", `User role updated successfully to "${newRole}".`);
+        setUsersList((prev) =>
+          prev.map((u) =>
+            (u._id ? String(u._id) : u.id) === String(userId)
+              ? { ...u, role: newRole }
+              : u
+          )
+        );
+      } else {
+        showToast("error", result?.message || "Failed to update user role.");
+      }
+    } catch (error) {
+      showToast("error", error.message || "Something went wrong updating user role.");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deletingUser) return;
+    const userId = deletingUser._id ? String(deletingUser._id) : deletingUser.id;
+    setIsDeleting(true);
+
+    try {
+      const result = await deleteUser(userId);
+      if (result?.success) {
+        showToast("success", `User "${deletingUser.name || deletingUser.email}" deleted successfully.`);
+        setUsersList((prev) =>
+          prev.filter((u) => (u._id ? String(u._id) : u.id) !== String(userId))
+        );
+        setDeletingUser(null);
+      } else {
+        showToast("error", result?.message || "Failed to delete user.");
+      }
+    } catch (error) {
+      showToast("error", error.message || "Something went wrong deleting user.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -79,6 +136,33 @@ export default function ManageUsersAdmin() {
 
   return (
     <div className="space-y-6">
+      {/* Toast Banner */}
+      {notification && (
+        <div
+          className={`p-4 border text-xs font-medium flex items-center justify-between gap-3 ${
+            notification.type === "success"
+              ? "border-emerald-500/30 bg-emerald-950/30 text-emerald-300"
+              : "border-rose-500/30 bg-rose-950/30 text-rose-300"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {notification.type === "success" ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+            )}
+            <span>{notification.message}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setNotification(null)}
+            className="text-zinc-400 hover:text-zinc-200"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Top Header & Overview */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-5">
         <div>
@@ -226,8 +310,10 @@ export default function ManageUsersAdmin() {
                         {/* Change Role Selector */}
                         <div className="relative inline-block text-left">
                           <select
-                            defaultValue={u.role}
-                            className="px-2.5 py-1.5 bg-zinc-900 border border-zinc-700/80 text-zinc-200 text-xs focus:outline-none focus:border-rose-500 cursor-pointer font-sans"
+                            value={u.role || "reader"}
+                            disabled={updatingId === userId}
+                            onChange={(e) => handleRoleChange(userId, e.target.value)}
+                            className="px-2.5 py-1.5 bg-zinc-900 border border-zinc-700/80 text-zinc-200 text-xs focus:outline-none focus:border-rose-500 cursor-pointer font-sans disabled:opacity-50"
                           >
                             <option value="reader">Reader</option>
                             <option value="writer">Writer</option>
@@ -238,6 +324,7 @@ export default function ManageUsersAdmin() {
                         {/* Delete User Button */}
                         <button
                           type="button"
+                          onClick={() => setDeletingUser(u)}
                           className="p-1.5 bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-800/40 transition-colors cursor-pointer"
                           title="Delete user"
                         >
@@ -260,6 +347,71 @@ export default function ManageUsersAdmin() {
           </table>
         </div>
       </div>
+
+      {/* Delete User Confirmation Modal */}
+      {deletingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-[#121216] border border-zinc-800 p-6 space-y-5 shadow-2xl">
+            <div className="flex items-center gap-3 text-rose-400">
+              <div className="w-10 h-10 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-serif font-bold text-zinc-100">Delete User Account</h3>
+                <p className="text-xs text-zinc-400">This action cannot be undone.</p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-zinc-900/80 border border-zinc-800 text-xs space-y-1 text-zinc-300">
+              <div>
+                <span className="text-zinc-500">Name: </span>
+                <span className="font-semibold text-zinc-100">{deletingUser.name || "N/A"}</span>
+              </div>
+              <div>
+                <span className="text-zinc-500">Email: </span>
+                <span className="font-mono text-rose-400">{deletingUser.email}</span>
+              </div>
+              <div>
+                <span className="text-zinc-500">Role: </span>
+                <span className="uppercase font-mono font-bold text-zinc-300">{deletingUser.role}</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Are you sure you want to permanently remove this user from the platform database?
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setDeletingUser(null)}
+                className="px-4 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={handleDeleteUser}
+                className="inline-flex items-center gap-2 px-5 py-2 text-xs font-medium text-white bg-rose-600 hover:bg-rose-500 transition-colors shadow-lg shadow-rose-600/20 disabled:opacity-50 cursor-pointer"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Confirm Delete</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,3 +1,10 @@
+export const metadata = {
+  title: 'Admin || Transactions',
+  description: 'This is Admin Dashboard Page',
+}
+
+
+
 export default function AdminViewTransactionsPage() {
   return (
     <div className="space-y-6">

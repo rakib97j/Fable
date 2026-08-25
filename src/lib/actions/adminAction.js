@@ -87,3 +87,43 @@ export const getUsers = async () => {
     }
 };
 
+export const updateUserRole = async (id, role) => {
+    try {
+        const primaryUrl = baseUrl ? `${baseUrl}/api/users/${id}` : `/api/users/${id}`;
+        const res = await fetch(primaryUrl, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ role }),
+            cache: 'no-store'
+        });
+
+        if (res.ok) {
+            const data = await res.json().catch(() => ({}));
+            return { success: true, data };
+        }
+        return { success: false, message: `Failed to update user role (${res.status})` };
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
+};
+
+export const deleteUser = async (id) => {
+    try {
+        const primaryUrl = baseUrl ? `${baseUrl}/api/users/${id}` : `/api/users/${id}`;
+        const res = await fetch(primaryUrl, {
+            method: 'DELETE',
+            cache: 'no-store'
+        });
+
+        if (res.ok) {
+            const data = await res.json().catch(() => ({}));
+            return { success: true, data };
+        }
+        return { success: false, message: `Failed to delete user (${res.status})` };
+    } catch (error) {
+        return { success: false, message: error.message };
+    }
+};
+
+
+

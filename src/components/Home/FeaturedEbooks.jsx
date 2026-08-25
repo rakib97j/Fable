@@ -101,7 +101,7 @@ export default function FeaturedEbooks() {
             }
 
             return (
-              <div
+              <Link href={`/e-books/${ebook._id || ebook.id}`}
                 key={ebook._id || ebook.id}
                 className="group relative bg-[#121215] border border-zinc-800/80 overflow-hidden hover:border-zinc-700 transition-all duration-300 flex flex-col justify-between"
               >
@@ -167,7 +167,7 @@ export default function FeaturedEbooks() {
                     {formattedPrice}
                   </span>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

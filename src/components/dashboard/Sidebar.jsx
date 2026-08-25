@@ -25,10 +25,15 @@ import {
 export default function DashboardSidebar() {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { data: session } = useSession();
   
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const user = session?.user;
-  const role = (user?.role || "writer").toLowerCase(); // 'reader' | 'writer' | 'admin'
+  const role = (mounted && user?.role ? user.role : "writer").toLowerCase(); // 'reader' | 'writer' | 'admin'
 
   const linksByRole = {
     reader: [
