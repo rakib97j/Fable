@@ -74,6 +74,7 @@ export default function AddEbookForm() {
     genre: "Fantasy",
     price: "",
     isFree: false,
+    shortDescription: "",
     description: "",
   });
 
@@ -178,7 +179,7 @@ export default function AddEbookForm() {
       return;
     }
     if (!formData.description.trim()) {
-      alert("Please enter the full description/content for your e-book.");
+      alert("Please enter the full content for your e-book.");
       return;
     }
 
@@ -209,6 +210,7 @@ export default function AddEbookForm() {
       genre: formData.genre,
       price: formData.isFree ? 0 : parseFloat(formData.price || 0),
       isFree: formData.isFree,
+      shortDescription: formData.shortDescription,
       description: formData.description,
       coverImage: coverImageUrl,
       status: "pending",
@@ -233,6 +235,7 @@ export default function AddEbookForm() {
         genre: "Fantasy",
         price: "",
         isFree: false,
+        shortDescription: "",
         description: "",
       });
       removeCoverImage();
@@ -359,7 +362,7 @@ export default function AddEbookForm() {
                 </div>
               </div>
               <p className="text-xs text-zinc-400 line-clamp-3 leading-relaxed">
-                {formData.description || "No description provided yet..."}
+                {formData.shortDescription || formData.description || "No description provided yet..."}
               </p>
             </div>
           </div>
@@ -468,12 +471,28 @@ export default function AddEbookForm() {
                 </div>
               </div>
 
+              {/* Short Description Field */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-zinc-400" />
+                  Short Description
+                </label>
+                <textarea
+                  name="shortDescription"
+                  rows={3}
+                  value={formData.shortDescription}
+                  onChange={handleInputChange}
+                  placeholder="Write a brief overview or hook for your e-book..."
+                  className="w-full px-4 py-3 bg-zinc-900/90 border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-rose-500 transition-colors resize-y leading-relaxed font-sans"
+                />
+              </div>
+
               {/* Description (Full Content) Field */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className=" text-xs font-semibold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
                     <FileText className="w-3.5 h-3.5 text-zinc-400" />
-                    Description / Full Content <span className="text-rose-500">*</span>
+                    Full Content <span className="text-rose-500">*</span>
                   </label>
                   <div className="text-[11px] text-zinc-500 font-mono space-x-2">
                     <span>{wordCount} words</span>

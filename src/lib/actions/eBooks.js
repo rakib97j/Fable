@@ -163,4 +163,42 @@ export const deleteWriterEBook = async (id) => {
     }
 };
 
+// Get single ebook by ID
+export const getEBookById = async (id) => {
+    try {
+        if (!id) return { success: false, data: null };
+
+        if (baseUrl) {
+            try {
+                const res = await fetch(`${baseUrl}/api/e-books/${id}`, { cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    const ebook = data?.data || data;
+                    if (ebook && (ebook._id || ebook.id)) {
+                        return { success: true, data: ebook };
+                    }
+                }
+            } catch (fetchErr) {
+                console.warn("Direct /api/e-books/:id fetch failed, attempting fallback...", fetchErr.message);
+            }
+        }
+
+        // Fallback: fetch all e-books and find matching ID
+        const allRes = await getEBooks();
+        if (allRes?.success && Array.isArray(allRes.data)) {
+            const found = allRes.data.find(
+                (b) => String(b._id) === String(id) || String(b.id) === String(id)
+            );
+            if (found) return { success: true, data: found };
+        }
+
+        return { success: false, data: null, message: "Ebook not found" };
+    } catch (error) {
+        console.error("Error in getEBookById:", error);
+        return { success: false, data: null, error: error.message };
+    }
+};
+export const GetEBookById = getEBookById;
+
+
 

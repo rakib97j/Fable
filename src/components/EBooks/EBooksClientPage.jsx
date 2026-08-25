@@ -265,7 +265,7 @@ export default function EBooksClientPage({ initialData = [] }) {
           <BookOpen className="w-12 h-12 text-zinc-600 mx-auto mb-3 stroke-[1.5]" />
           <h3 className="text-lg font-serif text-zinc-200 mb-1">No eBooks found</h3>
           <p className="text-xs text-zinc-400 max-w-sm mx-auto mb-5">
-            We couldn't find any ebook matching your filters. Try adjusting your search query or price range.
+            We couldn t find any ebook matching your filters. Try adjusting your search query or price range.
           </p>
           <button
             onClick={handleResetFilters}
@@ -282,7 +282,7 @@ export default function EBooksClientPage({ initialData = [] }) {
             const isFreeBook = ebook.isFree || priceVal === 0;
 
             return (
-              <div
+              <Link href={`/e-books/${ebook._id || ebook.id}`}
                 key={ebook._id || ebook.id}
                 className="group relative bg-[#121215] border border-zinc-800/80 overflow-hidden hover:border-zinc-700 transition-all duration-300 flex flex-col justify-between"
               >
@@ -326,13 +326,9 @@ export default function EBooksClientPage({ initialData = [] }) {
                       {ebook.title}
                     </h3>
                     <p className="text-xs text-zinc-400">
-                      by <Link href={'/'} className="text-zinc-300 font-medium">{ebook.writerName || ebook.author || "Anonymous"}</Link>
+                      by <span className="text-zinc-300 font-medium">{ebook.writerName || ebook.author || "Anonymous"}</span>
                     </p>
-                    {ebook.description && (
-                      <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed pt-1">
-                        {ebook.description}
-                      </p>
-                    )}
+                    
                   </div>
                 </div>
 
@@ -352,7 +348,7 @@ export default function EBooksClientPage({ initialData = [] }) {
                     {isFreeBook ? "Free" : `$${priceVal.toFixed(2)}`}
                   </span>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
