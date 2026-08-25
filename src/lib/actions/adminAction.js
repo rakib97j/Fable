@@ -71,3 +71,19 @@ export const deleteEBook = async (id) => {
         return { success: false, message: error.message };
     }
 };
+
+export const getUsers = async () => {
+    try {
+        const res = await fetch(`${baseUrl}/api/users`, { cache: 'no-store' });
+        if (!res.ok) return { success: false, data: [] };
+        
+        const data = await res.json();
+        const users = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+
+        return { success: true, data: users };
+    } catch (error) {
+        console.error("Error in getUsers action:", error);
+        return { success: false, data: [] };
+    }
+};
+
