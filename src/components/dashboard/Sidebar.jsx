@@ -32,8 +32,8 @@ export default function DashboardSidebar() {
     setMounted(true);
   }, []);
 
-  const user = session?.user;
-  const role = (mounted && user?.role ? user.role : "writer").toLowerCase(); // 'reader' | 'writer' | 'admin'
+  const user = mounted ? session?.user : null;
+  const role = (user?.role || "writer").toLowerCase(); // 'reader' | 'writer' | 'admin'
 
   const linksByRole = {
     reader: [
@@ -60,7 +60,11 @@ export default function DashboardSidebar() {
 
   const navLinks = linksByRole[role] || linksByRole.reader;
 
-  const roleTitle = role === "admin" ? "Fable Admin" : (user?.name || role);
+  const roleTitle = mounted
+    ? role === "admin"
+      ? "Fable Admin"
+      : user?.name || role
+    : "Writer";
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-[#0a0a0c] dark:bg-[#0d0d0f] text-zinc-100 w-64 border-r border-zinc-800/80 font-sans select-none">

@@ -24,6 +24,31 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const [profileImageFile, setProfileImageFile] = useState(null);
+
+  // Helper for uploading profile picture to ImgBB
+  const uploadImageToImgBB = async (imageFile) => {
+    const apiKey = process.env.NEXT_PUBLIC_IMAGE_UPLOAD_API;
+    if (!apiKey) {
+      throw new Error("ImgBB API key is missing. Please set NEXT_PUBLIC_IMAGE_UPLOAD_API in your environment variables.");
+    }
+
+    const bodyData = new FormData();
+    bodyData.append("image", imageFile);
+
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+      method: "POST",
+      body: bodyData,
+    });
+
+    const data = await res.json();
+    if (data?.success) {
+      return data.data.url;
+    } else {
+      throw new Error(data?.error?.message || "ImgBB image upload failed");
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -33,8 +58,18 @@ export default function SignUpPage() {
   const handleImageFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (!file.type.startsWith("image/")) {
+        setError("Please upload a valid image file.");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Image size should be less than 5MB.");
+        return;
+      }
+      setProfileImageFile(file);
       const imageUrl = URL.createObjectURL(file);
       setFormData((prev) => ({ ...prev, image: imageUrl }));
+      if (error) setError("");
     }
   };
 
@@ -49,11 +84,18 @@ export default function SignUpPage() {
     setError("");
 
     try {
+      let finalImageUrl = formData.image;
+
+      // If a local image file was uploaded via file picker, upload it to ImgBB first
+      if (profileImageFile) {
+        finalImageUrl = await uploadImageToImgBB(profileImageFile);
+      }
+
       const { data, error: authError } = await signUp.email({
         email: formData.email,
         password: formData.password,
         name: formData.fullName,
-        image: formData.image,
+        image: finalImageUrl,
         role: role,
         callbackURL: "/",
       });
@@ -179,8 +221,11 @@ export default function SignUpPage() {
                     {formData.image && (
                       <button
                         type="button"
-                        onClick={() => setFormData((prev) => ({ ...prev, image: "" }))}
-                        className="text-[11px] text-zinc-500 hover:text-zinc-300 ml-auto"
+                        onClick={() => {
+                          setFormData((prev) => ({ ...prev, image: "" }));
+                          setProfileImageFile(null);
+                        }}
+                        className="text-[11px] text-zinc-500 hover:text-zinc-300 ml-auto cursor-pointer"
                       >
                         Remove
                       </button>

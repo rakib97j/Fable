@@ -20,6 +20,8 @@ import {
   Lock,
   Sparkles,
   Share2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 
@@ -132,6 +134,36 @@ export default function EBookDetailsClient({ ebook }) {
     setIsPurchased(true);
     showToast("🎉 Purchase successful! Full content unlocked.");
   };
+
+  // Page Preview Pagination Logic
+  const [previewPage, setPreviewPage] = useState(1);
+  const charsPerPage = 1500;
+  const fullContent = ebook?.description || "";
+  
+  const contentPages = React.useMemo(() => {
+    if (!fullContent) return ["No content available for this e-book."];
+    
+    // Split content into clean chunks by paragraph or character limit
+    const paragraphs = fullContent.split("\n\n");
+    const pages = [];
+    let currentChunk = "";
+
+    for (const p of paragraphs) {
+      if ((currentChunk + "\n\n" + p).length > charsPerPage && currentChunk.trim().length > 0) {
+        pages.push(currentChunk.trim());
+        currentChunk = p;
+      } else {
+        currentChunk = currentChunk ? currentChunk + "\n\n" + p : p;
+      }
+    }
+    if (currentChunk.trim().length > 0) {
+      pages.push(currentChunk.trim());
+    }
+
+    return pages.length > 0 ? pages : [fullContent];
+  }, [fullContent]);
+
+  const totalPreviewPages = contentPages.length;
 
   return (
     <div className="min-h-screen bg-[#0a0a0c] text-white py-10 px-4 sm:px-6 lg:px-8 selection:bg-rose-500 selection:text-white">
@@ -411,27 +443,76 @@ export default function EBookDetailsClient({ ebook }) {
                 </div>
               )}
 
-              {/* Tab 2: Page View Reader Preview */}
+              {/* Tab 2: Page View Reader Preview with 1, 2, 3 Pagination */}
               {activeTab === "preview" && (
-                <div className="p-6 rounded-none bg-[#121216] border border-zinc-800 text-zinc-300 space-y-4 font-serif leading-relaxed">
+                <div className="p-6 rounded-none bg-[#121216] border border-zinc-800 text-zinc-300 space-y-6 font-serif leading-relaxed">
                   <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80">
                     <span className="text-xs font-mono text-rose-400 uppercase tracking-wider">
-                      FULL E-BOOK CONTENT
+                      FULL E-BOOK READER
                     </span>
-                    <span className="text-xs text-zinc-500">Unlocked</span>
+                    <span className="text-xs text-zinc-400 font-mono">
+                      Page <span className="text-rose-400 font-bold">{previewPage}</span> of {totalPreviewPages}
+                    </span>
                   </div>
 
                   <h3 className="text-xl font-bold text-white">
                     {ebook.title}
                   </h3>
 
-                  <p className="text-sm text-zinc-300 italic">
+                  <p className="text-sm text-zinc-400 italic font-sans">
                     By {writerName}
                   </p>
 
-                  <div className="space-y-3 pt-2 text-sm text-zinc-300 whitespace-pre-line font-sans">
-                    {ebook.description ? ebook.description : "No content available for this e-book."}
+                  {/* Page Text Content */}
+                  <div className="min-h-60 space-y-3 pt-2 text-sm text-zinc-300 whitespace-pre-line font-sans leading-relaxed border-l-2 border-rose-500/40 pl-4 py-1">
+                    {contentPages[previewPage - 1]}
                   </div>
+
+                  {/* 1, 2, 3 Page Reader Navigation */}
+                  {totalPreviewPages > 1 && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-zinc-800/80 font-mono text-xs">
+                      <span className="text-zinc-500 text-[11px]">
+                        Navigation: Use buttons or page numbers to read
+                      </span>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          disabled={previewPage === 1}
+                          onClick={() => setPreviewPage((prev) => Math.max(prev - 1, 1))}
+                          className="px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-300 transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <ChevronLeft className="w-3.5 h-3.5" />
+                          <span>Prev</span>
+                        </button>
+
+                        {Array.from({ length: totalPreviewPages }, (_, i) => i + 1).map((pageNum) => (
+                          <button
+                            key={pageNum}
+                            type="button"
+                            onClick={() => setPreviewPage(pageNum)}
+                            className={`px-3 py-1.5 font-mono text-xs transition-colors cursor-pointer border ${
+                              previewPage === pageNum
+                                ? "bg-rose-600 text-white border-rose-500 font-bold"
+                                : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        ))}
+
+                        <button
+                          type="button"
+                          disabled={previewPage === totalPreviewPages}
+                          onClick={() => setPreviewPage((prev) => Math.min(prev + 1, totalPreviewPages))}
+                          className="px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-300 transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>Next</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

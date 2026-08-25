@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, Star, BookOpen, RotateCcw, Filter } from "lucide-react";
+import { Search, Star, BookOpen, RotateCcw, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { getEBooks } from "@/lib/actions/eBooks";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -34,6 +34,10 @@ export default function EBooksClientPage({ initialData = [] }) {
   const [maxPrice, setMaxPrice] = useState("");
   const [availability, setAvailability] = useState("Any"); // Any | Free | Paid
   const [sortBy, setSortBy] = useState("Newest"); // Newest | PriceLowHigh | PriceHighLow | Rating | Title
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(8);
 
   useEffect(() => {
     async function loadData() {
@@ -117,6 +121,18 @@ export default function EBooksClientPage({ initialData = [] }) {
       });
   }, [ebooks, searchTerm, selectedGenre, minPrice, maxPrice, availability, sortBy]);
 
+  // Reset to page 1 whenever filters or search query change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedGenre, minPrice, maxPrice, availability, sortBy, itemsPerPage]);
+
+  // Pagination Math
+  const totalPages = Math.ceil(filteredEBooks.length / itemsPerPage) || 1;
+  const paginatedEBooks = useMemo(() => {
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    return filteredEBooks.slice(startIdx, startIdx + itemsPerPage);
+  }, [filteredEBooks, currentPage, itemsPerPage]);
+
   const handleResetFilters = () => {
     setSearchTerm("");
     setSelectedGenre("All");
@@ -124,6 +140,7 @@ export default function EBooksClientPage({ initialData = [] }) {
     setMaxPrice("");
     setAvailability("Any");
     setSortBy("Newest");
+    setCurrentPage(1);
   };
 
   return (
@@ -276,81 +293,164 @@ export default function EBooksClientPage({ initialData = [] }) {
         </div>
       ) : (
         /* Dynamic Cards Grid */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredEBooks.map((ebook) => {
-            const priceVal = typeof ebook.price === "number" ? ebook.price : parseFloat(ebook.price) || 0;
-            const isFreeBook = ebook.isFree || priceVal === 0;
+        <div className="space-y-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {paginatedEBooks.map((ebook) => {
+              const priceVal = typeof ebook.price === "number" ? ebook.price : parseFloat(ebook.price) || 0;
+              const isFreeBook = ebook.isFree || priceVal === 0;
 
-            return (
-              <Link href={`/e-books/${ebook._id || ebook.id}`}
-                key={ebook._id || ebook.id}
-                className="group relative bg-[#121215] border border-zinc-800/80 overflow-hidden hover:border-zinc-700 transition-all duration-300 flex flex-col justify-between"
-              >
-                {/* Cover Image Container */}
-                <div>
-                  <div className="relative aspect-3/4 w-full overflow-hidden bg-zinc-900">
-                    {ebook.coverImage ? (
-                      <Image
-                        src={ebook.coverImage}
-                        alt={ebook.title || "EBook Cover"}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center text-zinc-700 bg-zinc-900/80 p-4">
-                        <BookOpen className="w-12 h-12 mb-2 stroke-[1.5]" />
-                        <span className="text-xs font-mono">FABLE EBOOK</span>
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-linear-to-t from-[#121215] via-transparent to-transparent opacity-60" />
+              return (
+                <Link href={`/e-books/${ebook._id || ebook.id}`}
+                  key={ebook._id || ebook.id}
+                  className="group relative bg-[#121215] border border-zinc-800/80 overflow-hidden hover:border-zinc-700 transition-all duration-300 flex flex-col justify-between"
+                >
+                  {/* Cover Image Container */}
+                  <div>
+                    <div className="relative aspect-3/4 w-full overflow-hidden bg-zinc-900">
+                      {ebook.coverImage ? (
+                        <Image
+                          src={ebook.coverImage}
+                          alt={ebook.title || "EBook Cover"}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center text-zinc-700 bg-zinc-900/80 p-4">
+                          <BookOpen className="w-12 h-12 mb-2 stroke-[1.5]" />
+                          <span className="text-xs font-mono">FABLE EBOOK</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-linear-to-t from-[#121215] via-transparent to-transparent opacity-60" />
 
-                    {/* Genre Tag */}
-                    {ebook.genre && (
-                      <span className="absolute top-3 left-3 bg-zinc-950/80 backdrop-blur-md border border-zinc-700/60 text-zinc-300 text-[10px] font-semibold px-2.5 py-1 uppercase tracking-wider">
-                        {ebook.genre}
+                      {/* Genre Tag */}
+                      {ebook.genre && (
+                        <span className="absolute top-3 left-3 bg-zinc-950/80 backdrop-blur-md border border-zinc-700/60 text-zinc-300 text-[10px] font-semibold px-2.5 py-1 uppercase tracking-wider">
+                          {ebook.genre}
+                        </span>
+                      )}
+
+                      {/* Free Tag */}
+                      {isFreeBook && (
+                        <span className="absolute top-3 right-3 bg-emerald-950/90 backdrop-blur-md border border-emerald-700/60 text-emerald-400 text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider">
+                          FREE
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Info Section */}
+                    <div className="p-5 space-y-2">
+                      <h3 className="text-lg font-serif font-medium text-white group-hover:text-rose-400 transition-colors duration-200 line-clamp-1">
+                        {ebook.title}
+                      </h3>
+                      <p className="text-xs text-zinc-400">
+                        by <span className="text-zinc-300 font-medium">{ebook.writerName || ebook.author || "Anonymous"}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Footer Section: Rating & Price */}
+                  <div className="px-5 pb-5 pt-3 border-t border-zinc-800/60 flex items-center justify-between mt-auto">
+                    <div className="flex items-center gap-1 text-xs text-amber-400">
+                      <Star className="w-3.5 h-3.5 fill-amber-400" />
+                      <span className="font-semibold text-zinc-200">
+                        {ebook.rating || "4.8"}
                       </span>
-                    )}
-
-                    {/* Free Tag */}
-                    {isFreeBook && (
-                      <span className="absolute top-3 right-3 bg-emerald-950/90 backdrop-blur-md border border-emerald-700/60 text-emerald-400 text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider">
-                        FREE
+                      <span className="text-zinc-500">
+                        ({ebook.reviewsCount || 45})
                       </span>
-                    )}
-                  </div>
+                    </div>
 
-                  {/* Info Section */}
-                  <div className="p-5 space-y-2">
-                    <h3 className="text-lg font-serif font-medium text-white group-hover:text-rose-400 transition-colors duration-200 line-clamp-1">
-                      {ebook.title}
-                    </h3>
-                    <p className="text-xs text-zinc-400">
-                      by <span className="text-zinc-300 font-medium">{ebook.writerName || ebook.author || "Anonymous"}</span>
-                    </p>
-                    
-                  </div>
-                </div>
-
-                {/* Footer Section: Rating & Price */}
-                <div className="px-5 pb-5 pt-3 border-t border-zinc-800/60 flex items-center justify-between mt-auto">
-                  <div className="flex items-center gap-1 text-xs text-amber-400">
-                    <Star className="w-3.5 h-3.5 fill-amber-400" />
-                    <span className="font-semibold text-zinc-200">
-                      {ebook.rating || "4.8"}
-                    </span>
-                    <span className="text-zinc-500">
-                      ({ebook.reviewsCount || 45})
+                    <span className="text-sm font-semibold text-white font-mono">
+                      {isFreeBook ? "Free" : `$${priceVal.toFixed(2)}`}
                     </span>
                   </div>
+                </Link>
+              );
+            })}
+          </div>
 
-                  <span className="text-sm font-semibold text-white font-mono">
-                    {isFreeBook ? "Free" : `$${priceVal.toFixed(2)}`}
-                  </span>
+          {/* Pagination Controls Bar */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-zinc-800/80 text-xs text-zinc-400 font-mono">
+              <div className="flex items-center gap-3">
+                <span>
+                  Showing{" "}
+                  <strong className="text-zinc-200 font-semibold">
+                    {(currentPage - 1) * itemsPerPage + 1}
+                  </strong>{" "}
+                  –{" "}
+                  <strong className="text-zinc-200 font-semibold">
+                    {Math.min(currentPage * itemsPerPage, filteredEBooks.length)}
+                  </strong>{" "}
+                  of <strong className="text-zinc-200 font-semibold">{filteredEBooks.length}</strong> ebooks
+                </span>
+
+                {/* Items Per Page Selector */}
+                <div className="flex items-center gap-1.5 ml-2">
+                  <span className="text-zinc-500">Per page:</span>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                    className="bg-[#18181f] border border-zinc-800 text-zinc-200 px-2 py-1 focus:outline-none focus:border-rose-500 cursor-pointer"
+                  >
+                    <option value={8}>8</option>
+                    <option value={12}>12</option>
+                  </select>
                 </div>
-              </Link>
-            );
-          })}
+              </div>
+
+              {/* Navigation Page Numbers */}
+              <div className="flex items-center gap-1.5">
+                {/* Previous Button */}
+                <button
+                  type="button"
+                  disabled={currentPage === 1}
+                  onClick={() => {
+                    setCurrentPage((prev) => Math.max(prev - 1, 1));
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="px-3 py-2 bg-[#121216] border border-zinc-800 hover:border-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-300 hover:text-white transition-all flex items-center gap-1 cursor-pointer"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Prev</span>
+                </button>
+
+                {/* Page Numbers */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    type="button"
+                    onClick={() => {
+                      setCurrentPage(pageNum);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className={`px-3.5 py-2 font-mono text-xs transition-all cursor-pointer border ${
+                      currentPage === pageNum
+                        ? "bg-rose-600 text-white border-rose-500 font-bold shadow-md shadow-rose-600/20"
+                        : "bg-[#121216] border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:border-zinc-700"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+
+                {/* Next Button */}
+                <button
+                  type="button"
+                  disabled={currentPage === totalPages}
+                  onClick={() => {
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="px-3 py-2 bg-[#121216] border border-zinc-800 hover:border-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-300 hover:text-white transition-all flex items-center gap-1 cursor-pointer"
+                >
+                  <span className="hidden sm:inline">Next</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
