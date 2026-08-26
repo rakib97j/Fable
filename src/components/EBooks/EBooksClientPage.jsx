@@ -3,9 +3,10 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, Star, BookOpen, RotateCcw, Filter, ChevronLeft, ChevronRight } from "lucide-react";
-import { getEBooks } from "@/lib/actions/eBooks";
+import { Search, Star, BookOpen, RotateCcw, Filter, ChevronLeft, ChevronRight, Bookmark } from "lucide-react";
+import { getEBooks, getUserBookmarks } from "@/lib/actions/eBooks";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { useSession } from "@/lib/auth-client";
 
 const GENRES = [
   "All",
@@ -24,8 +25,13 @@ const GENRES = [
 ];
 
 export default function EBooksClientPage({ initialData = [] }) {
+  const { data: session } = useSession();
+  const user = session?.user;
+  const userIdStr = user?.id || user?._id;
+
   const [ebooks, setEbooks] = useState(initialData);
   const [loading, setLoading] = useState(initialData.length === 0);
+  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
 
   // Search & Filter State
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,6 +44,23 @@ export default function EBooksClientPage({ initialData = [] }) {
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(8);
+
+  // Fetch bookmarked book IDs for logged in user
+  useEffect(() => {
+    async function fetchUserBookmarks() {
+      if (!userIdStr) return;
+      try {
+        const res = await getUserBookmarks(userIdStr);
+        if (res?.success && Array.isArray(res.data)) {
+          const ids = new Set(res.data.map((bm) => String(bm.bookId)));
+          setBookmarkedIds(ids);
+        }
+      } catch (err) {
+        console.error("Error fetching bookmarks:", err);
+      }
+    }
+    fetchUserBookmarks();
+  }, [userIdStr]);
 
   useEffect(() => {
     async function loadData() {
@@ -334,6 +357,14 @@ export default function EBooksClientPage({ initialData = [] }) {
                       {isFreeBook && (
                         <span className="absolute top-3 right-3 bg-emerald-950/90 backdrop-blur-md border border-emerald-700/60 text-emerald-400 text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider">
                           FREE
+                        </span>
+                      )}
+
+                      {/* Bookmark Badge */}
+                      {bookmarkedIds.has(String(ebook._id || ebook.id)) && (
+                        <span className={`absolute ${isFreeBook ? "top-10 right-3" : "top-3 right-3"} bg-rose-950/90 backdrop-blur-md border border-rose-600/60 text-rose-300 text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider flex items-center gap-1 shadow-md shadow-rose-950/50`}>
+                          <Bookmark className="w-3 h-3 fill-rose-500 text-rose-400" />
+                          <span>Saved</span>
                         </span>
                       )}
                     </div>

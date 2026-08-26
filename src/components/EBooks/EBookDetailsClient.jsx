@@ -24,6 +24,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
+import { addBookmark, getUserBookmarks, removeBookmark } from "@/lib/actions/eBooks";
 
 export default function EBookDetailsClient({ ebook }) {
   const [mounted, setMounted] = useState(false);
@@ -32,17 +33,76 @@ export default function EBookDetailsClient({ ebook }) {
 
   // UI Interactive States
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const [isPurchased, setIsPurchased] = useState(false);
   const [activeTab, setActiveTab] = useState("overview"); // 'overview' | 'preview'
   const [toastMessage, setToastMessage] = useState("");
+
+  const bookIdStr = String(ebook?._id || ebook?.id || "");
+  const userIdStr = currentUser?.id || currentUser?._id;
 
   React.useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Fetch initial bookmark state for logged in user
+  React.useEffect(() => {
+    async function checkBookmarkStatus() {
+      if (!userIdStr || !bookIdStr) return;
+      try {
+        const res = await getUserBookmarks(userIdStr);
+        if (res?.success && Array.isArray(res.data)) {
+          const exists = res.data.some((bm) => String(bm.bookId) === bookIdStr);
+          setIsBookmarked(exists);
+        }
+      } catch (err) {
+        console.error("Error checking bookmark status:", err);
+      }
+    }
+    checkBookmarkStatus();
+  }, [userIdStr, bookIdStr]);
+
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(""), 3000);
+  };
+
+  // Bookmark Toggle Handler calling /api/bookmarks API
+  const handleBookmarkToggle = async () => {
+    if (!userIdStr) {
+      showToast("Please sign in to bookmark books!");
+      return;
+    }
+
+    if (isBookmarkLoading) return;
+    setIsBookmarkLoading(true);
+
+    try {
+      if (isBookmarked) {
+        const res = await removeBookmark(userIdStr, bookIdStr);
+        if (res.success) {
+          setIsBookmarked(false);
+          showToast("Removed from your bookmarks.");
+        } else {
+          showToast(res.message || "Failed to remove bookmark.");
+        }
+      } else {
+        const res = await addBookmark(userIdStr, ebook);
+        if (res.success) {
+          setIsBookmarked(true);
+          showToast("Saved to your bookmarks!");
+        } else {
+          if (res.message === "Already bookmarked!") {
+            setIsBookmarked(true);
+          }
+          showToast(res.message || "Failed to add bookmark.");
+        }
+      }
+    } catch (err) {
+      showToast(err.message || "Something went wrong.");
+    } finally {
+      setIsBookmarkLoading(false);
+    }
   };
 
   // Ebook not found state
@@ -110,16 +170,6 @@ export default function EBookDetailsClient({ ebook }) {
         day: "numeric",
       })
     : "Recently Added";
-
-  // Bookmark Toggle Handler
-  const handleBookmarkToggle = () => {
-    setIsBookmarked((prev) => !prev);
-    showToast(
-      !isBookmarked
-        ? "Saved to your bookmarks!"
-        : "Removed from your bookmarks."
-    );
-  };
 
   // Purchase Button Click Handler (UI mock flow)
   const handlePurchaseClick = () => {

@@ -16,7 +16,9 @@ import {
   AlertTriangle,
   X,
   Save,
-  Clock
+  Clock,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { getEBooksByWriter, updateWriterEBook, deleteWriterEBook } from "@/lib/actions/eBooks";
@@ -61,6 +63,16 @@ export default function ManageWriterEbooksClient() {
   // Delete Confirmation Modal State
   const [deletingBook, setDeletingBook] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Pagination State (8-10 items per page)
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
+  const totalPages = Math.ceil(ebooks.length / itemsPerPage) || 1;
+  const paginatedEbooks = React.useMemo(() => {
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    return ebooks.slice(startIdx, startIdx + itemsPerPage);
+  }, [ebooks, currentPage, itemsPerPage]);
 
   const fetchWriterEbooks = async () => {
     if (!writerId) {
@@ -296,7 +308,7 @@ export default function ManageWriterEbooksClient() {
         ) : (
           /* Ebooks List Table */
           <div className="divide-y divide-zinc-800/60">
-            {ebooks.map((ebook) => {
+            {paginatedEbooks.map((ebook) => {
               const bookId = ebook._id || ebook.id;
               const priceVal = typeof ebook.price === "number" ? ebook.price : parseFloat(ebook.price) || 0;
               const isFree = ebook.isFree || priceVal === 0;
@@ -427,6 +439,52 @@ export default function ManageWriterEbooksClient() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Pagination Bar */}
+        {!loading && ebooks.length > 0 && totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-zinc-800/80 bg-zinc-900/40 text-xs font-mono text-zinc-400">
+            <span>
+              Showing <strong className="text-zinc-200">{(currentPage - 1) * itemsPerPage + 1}</strong> – <strong className="text-zinc-200">{Math.min(currentPage * itemsPerPage, ebooks.length)}</strong> of <strong className="text-zinc-200">{ebooks.length}</strong> ebooks
+            </span>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-300 transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Prev</span>
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                <button
+                  key={pageNum}
+                  type="button"
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`px-3 py-1.5 font-mono text-xs transition-colors cursor-pointer border ${
+                    currentPage === pageNum
+                      ? "bg-rose-600 text-white border-rose-500 font-bold shadow-md shadow-rose-600/20"
+                      : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
+
+              <button
+                type="button"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                className="px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-300 transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <span>Next</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         )}
       </div>

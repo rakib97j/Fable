@@ -21,11 +21,17 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 
+import { getUserBookmarks } from "@/lib/actions/eBooks";
+
 export default function ReaderProfile() {
   const { data: session, isPending: sessionLoading } = useSession();
+  const user = session?.user;
+  const userIdStr = user?.id || user?._id;
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("general"); // 'general' | 'preferences'
+  const [bookmarkCount, setBookmarkCount] = useState(0);
   
   const [saveSuccess, setSaveSuccess] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -56,7 +62,7 @@ export default function ReaderProfile() {
   // Populate form data from session & localStorage for extra preferences
   useEffect(() => {
     if (!sessionLoading) {
-      const user = session?.user;
+      const userObj = session?.user;
       
       let localPrefs = {};
       try {
@@ -68,9 +74,9 @@ export default function ReaderProfile() {
 
       setFormData((prev) => ({
         ...prev,
-        name: user?.name || "Reader Member",
-        email: user?.email || "reader@fable.com",
-        image: user?.image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
+        name: userObj?.name || "Reader Member",
+        email: userObj?.email || "reader@fable.com",
+        image: userObj?.image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
         bio: localPrefs.bio || "Avid book lover, mystery fanatic, and collector of digital ebooks on Fable.",
         favoriteGenres: localPrefs.favoriteGenres || ["Fantasy", "Sci-Fi", "Mystery"],
         monthlyGoal: localPrefs.monthlyGoal || 4,
@@ -80,6 +86,22 @@ export default function ReaderProfile() {
       return () => clearTimeout(timer);
     }
   }, [session, sessionLoading]);
+
+  // Fetch real bookmark count for user
+  useEffect(() => {
+    async function loadBookmarkCount() {
+      if (!userIdStr) return;
+      try {
+        const res = await getUserBookmarks(userIdStr);
+        if (res?.success && Array.isArray(res.data)) {
+          setBookmarkCount(res.data.length);
+        }
+      } catch (err) {
+        console.error("Error loading bookmark count:", err);
+      }
+    }
+    loadBookmarkCount();
+  }, [userIdStr]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -258,8 +280,8 @@ export default function ReaderProfile() {
               <Bookmark className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-serif font-bold text-white group-hover:text-amber-100 transition-colors">28</p>
-          <p className="text-xs text-zinc-500 group-hover:text-zinc-400 transition-colors">Quotes & passages &rarr;</p>
+          <p className="text-2xl font-serif font-bold text-white group-hover:text-amber-100 transition-colors">{bookmarkCount}</p>
+          <p className="text-xs text-zinc-500 group-hover:text-zinc-400 transition-colors">Saved in reading list &rarr;</p>
         </Link>
 
         {/* Reading Streak Stat */}

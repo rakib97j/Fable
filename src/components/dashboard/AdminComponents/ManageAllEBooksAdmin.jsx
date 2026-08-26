@@ -15,7 +15,9 @@ import {
   RefreshCw,
   User,
   Tag,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { getAdminEBooks, updateEBookStatus, deleteEBook } from "@/lib/actions/adminAction";
 
@@ -146,6 +148,20 @@ export default function ManageAllEBooksAdmin() {
     });
   }, [eBooks, searchTerm, statusFilter]);
 
+  // Pagination State (8-10 items per page)
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter]);
+
+  const totalPages = Math.ceil(filteredEBooks.length / itemsPerPage) || 1;
+  const paginatedEBooks = useMemo(() => {
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    return filteredEBooks.slice(startIdx, startIdx + itemsPerPage);
+  }, [filteredEBooks, currentPage, itemsPerPage]);
+
   return (
     <div className="space-y-6">
       {/* Toast Notification */}
@@ -260,7 +276,7 @@ export default function ManageAllEBooksAdmin() {
         ) : (
           /* Table Rows */
           <div className="divide-y divide-zinc-800/60">
-            {filteredEBooks.map((book) => {
+            {paginatedEBooks.map((book) => {
               const bookId = book._id || book.id;
               const priceVal = typeof book.price === "number" ? book.price : parseFloat(book.price) || 0;
               const isFree = book.isFree || priceVal === 0;
@@ -391,6 +407,54 @@ export default function ManageAllEBooksAdmin() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Pagination Bar */}
+        {!loading && filteredEBooks.length > 0 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-zinc-800/80 bg-zinc-900/40 text-xs font-mono text-zinc-400">
+            <span>
+              Showing <strong className="text-zinc-200">{(currentPage - 1) * itemsPerPage + 1}</strong> – <strong className="text-zinc-200">{Math.min(currentPage * itemsPerPage, filteredEBooks.length)}</strong> of <strong className="text-zinc-200">{filteredEBooks.length}</strong> ebooks
+            </span>
+
+            {totalPages > 1 && (
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  className="px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-300 transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                  <span>Prev</span>
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    type="button"
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`px-3 py-1.5 font-mono text-xs transition-colors cursor-pointer border ${
+                      currentPage === pageNum
+                        ? "bg-rose-600 text-white border-rose-500 font-bold shadow-md shadow-rose-600/20"
+                        : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+
+                <button
+                  type="button"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  className="px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-300 transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

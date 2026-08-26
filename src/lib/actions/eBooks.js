@@ -200,5 +200,58 @@ export const getEBookById = async (id) => {
 };
 export const GetEBookById = getEBookById;
 
+export const addBookmark = async (userId, book) => {
+  try {
+    const res = await fetch(`${baseUrl}/api/bookmarks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, book }),
+      cache: "no-store",
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return { success: false, message: data?.message || "Failed to add bookmark" };
+    }
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, message: error.message || "Network error. Please try again." };
+  }
+};
+
+export const getUserBookmarks = async (userId) => {
+  try {
+    if (!baseUrl || !userId) return { success: true, data: [] };
+    const res = await fetch(`${baseUrl}/api/bookmarks/${encodeURIComponent(userId)}`, {
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) return { success: true, data };
+    }
+    return { success: true, data: [] };
+  } catch (error) {
+    console.error("getUserBookmarks error:", error);
+    return { success: false, data: [], error: error.message };
+  }
+};
+
+export const removeBookmark = async (userId, bookId) => {
+  try {
+    const res = await fetch(`${baseUrl}/api/bookmarks`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, bookId }),
+      cache: "no-store",
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return { success: false, message: data?.message || "Failed to remove bookmark" };
+    }
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, message: error.message || "Network error." };
+  }
+};
+
 
 
