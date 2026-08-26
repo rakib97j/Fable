@@ -1,7 +1,5 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import SignInPage from './SignInPage';
-
-
 
 export const metadata = {
   title: 'Sign In',
@@ -10,9 +8,9 @@ export const metadata = {
 
 const page = () => {
     return (
-        <div>
+        <Suspense fallback={<div>Loading...</div>}>
             <SignInPage/>
-        </div>
+        </Suspense>
     );
 };
 

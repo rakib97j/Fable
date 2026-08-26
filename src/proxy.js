@@ -10,7 +10,10 @@ export async function proxy(request) {
     })
 
     if(!session) {
-        return NextResponse.redirect(new URL('/auth/signin', request.url))
+        const signinUrl = new URL('/auth/signin', request.url)
+        const targetPath = request.nextUrl.pathname + request.nextUrl.search
+        signinUrl.searchParams.set('callbackUrl', targetPath)
+        return NextResponse.redirect(signinUrl)
     }
 
   
@@ -24,7 +27,7 @@ export const config = {
     '/api/bookmarks/:path*',
     '/api/users',
     '/api/users/:path*',
-    '/e-books/:path'
+    '/e-books/:path',
 
   ],
 }

@@ -3,12 +3,14 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signUp } from "@/lib/auth-client";
 import { BookOpen, Sparkles, ArrowRight, CheckCircle2, Eye, EyeOff, Upload, Camera, User } from "lucide-react";
 
 export default function SignUpPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [role, setRole] = useState("reader"); 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -97,13 +99,13 @@ export default function SignUpPage() {
         name: formData.fullName,
         image: finalImageUrl,
         role: role,
-        callbackURL: "/",
+        callbackURL: callbackUrl,
       });
 
       if (authError) {
         setError(authError.message || "Failed to create account. Please try again.");
       } else {
-        router.push("/");
+        router.push(callbackUrl);
       }
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
@@ -395,7 +397,10 @@ export default function SignUpPage() {
           {/* FOOTER LINK */}
           <div className="mt-8 text-sm text-zinc-400">
             Already a member?{" "}
-            <Link href="/auth/signin" className="text-rose-500 hover:text-rose-400 font-semibold underline underline-offset-4 transition-colors">
+            <Link
+              href={callbackUrl !== "/" ? `/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/auth/signin"}
+              className="text-rose-500 hover:text-rose-400 font-semibold underline underline-offset-4 transition-colors"
+            >
               Sign in
             </Link>
           </div>
