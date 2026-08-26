@@ -23,12 +23,7 @@ export const config = {
   matcher: [
     '/dashboard',
     '/dashboard/:path*',
-    '/api/bookmarks',
-    '/api/bookmarks/:path*',
-    '/api/users',
-    '/api/users/:path*',
     '/e-books/:path',
-
   ],
 }
 

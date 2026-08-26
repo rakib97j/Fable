@@ -312,7 +312,12 @@ export default function EBookDetailsClient({ ebook }) {
               <div className="flex items-center gap-2 text-sm text-zinc-400 pt-1">
                 <User className="w-4 h-4 text-rose-500" />
                 <span>Written by</span>
-                <span className="text-zinc-200 font-semibold">{writerName}</span>
+                <Link
+                  href={`/writers/${encodeURIComponent(ebook.writerId || ebook.writerEmail || writerName)}`}
+                  className="text-zinc-200 hover:text-rose-400 font-semibold underline underline-offset-4 decoration-rose-500/50 hover:decoration-rose-400 transition-colors"
+                >
+                  {writerName}
+                </Link>
                 {isAuthor && (
                   <span className="ml-2 px-2 py-0.5 text-[10px] font-bold bg-rose-600/30 text-rose-300 rounded-none border border-rose-500/30 uppercase">
                     You (Author)
