@@ -1,4 +1,7 @@
 "use server";
+import { headers } from "next/headers";
+import { auth } from "../auth";
+
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
 
@@ -7,6 +10,10 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
  * @param {string} writerId
  */
 export async function getWriterSalesHistory(writerId) {
+   // JWT token Get
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
   try {
     if (!writerId) {
       return { success: true, data: [] };
@@ -17,6 +24,9 @@ export async function getWriterSalesHistory(writerId) {
 
     const res = await fetch(url, {
       cache: "no-store",
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
     });
 
     if (res.ok) {

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Feather, User, Search, BookOpen, Sparkles, ArrowLeft } from "lucide-react";
+import { Feather, User, Search,  ArrowLeft } from "lucide-react";
 import { getAllWriters } from "@/lib/actions/userAction";
 
 export default function WritersClientPage() {

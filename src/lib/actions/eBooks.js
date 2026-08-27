@@ -1,6 +1,10 @@
 "use server"
 
 import { MongoClient } from "mongodb";
+import { headers } from "next/headers";
+import { auth } from "../auth";
+
+
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
 const mongoUri = process.env.MONGODB_URI;
@@ -10,6 +14,9 @@ const dbName = process.env.AUTH_DB_NAME || "fable_db";
  * Direct MongoDB helper when API endpoint is unavailable or returns empty
  */
 const getEbooksFromDb = async (query = {}, limit = 0, sample = false) => {
+ 
+
+
   if (!mongoUri) return [];
   try {
     const client = new MongoClient(mongoUri);
@@ -46,12 +53,18 @@ const getEbooksFromDb = async (query = {}, limit = 0, sample = false) => {
 };
 
 export const AddEBooks = async (newEBookData) => {
+  // JWT token Get
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
     try {
         const primaryUrl = baseUrl ? `${baseUrl}/api/e-books` : `/api/e-books`;
         const res = await fetch(primaryUrl, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+
             },
             body: JSON.stringify(newEBookData),
             cache: 'no-store'
@@ -80,9 +93,15 @@ export const AddEBooks = async (newEBookData) => {
 
 // All ebooks for Browser E-Books 
 export const getEBooks = async () => {
+  // JWT token Get
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
     try {
         if (baseUrl) {
-            const res = await fetch(`${baseUrl}/api/e-books`, { cache: 'no-store' });
+            const res = await fetch(`${baseUrl}/api/e-books`, { cache: 'no-store' ,headers: {
+        authorization: `Bearer ${token}`,
+      },});
 
             if (res.ok) {
                 const data = await res.json();
@@ -104,11 +123,17 @@ export const GetEBooks = getEBooks;
 
 // for writer manage Ebooks 
 export const getEBooksByWriter = async (writerId) => {
+  // JWT token Get
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
     try {
         if (!writerId) return { success: true, data: [] };
 
         if (baseUrl) {
-            const res = await fetch(`${baseUrl}/api/e-books/writer/${writerId}`, { cache: 'no-store' });
+            const res = await fetch(`${baseUrl}/api/e-books/writer/${writerId}`, { cache: 'no-store'  ,headers: {
+        authorization: `Bearer ${token}`,
+      },});
 
             if (res.ok) {
                 const data = await res.json();
@@ -136,10 +161,16 @@ export const GetWriterEBooks = getEBooksByWriter;
 
 // Random ebooks for Featured E-Books
 export const getRandomEBooks = async () => {
+  // JWT token Get
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
     try {
         if (baseUrl) {
             const url = `${baseUrl}/api/e-books/random`;
-            const res = await fetch(url, { cache: 'no-store' });
+            const res = await fetch(url, { cache: 'no-store',headers: {
+        authorization: `Bearer ${token}`,
+      },});
 
             if (res.ok) {
                 const data = await res.json();
@@ -165,6 +196,10 @@ export const GetRandomEBooks = getRandomEBooks;
 
 // Update writer e-book
 export const updateWriterEBook = async (id, updateData) => {
+  // JWT token Get
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
     try {
         const payload = { ...updateData };
         delete payload._id;
@@ -172,7 +207,7 @@ export const updateWriterEBook = async (id, updateData) => {
         const primaryUrl = baseUrl ? `${baseUrl}/api/e-books/${id}` : `/api/e-books/${id}`;
         let res = await fetch(primaryUrl, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' , authorization: `Bearer ${token}` },
             body: JSON.stringify(payload),
             cache: 'no-store'
         });
@@ -181,7 +216,7 @@ export const updateWriterEBook = async (id, updateData) => {
             const adminUrl = baseUrl ? `${baseUrl}/api/admin/e-books/${id}` : `/api/admin/e-books/${id}`;
             res = await fetch(adminUrl, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json' ,authorization: `Bearer ${token}` },
                 body: JSON.stringify(payload),
                 cache: 'no-store'
             });
@@ -199,18 +234,28 @@ export const updateWriterEBook = async (id, updateData) => {
 
 // Delete writer e-book
 export const deleteWriterEBook = async (id) => {
+  // JWT token Get
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
     try {
         const primaryUrl = baseUrl ? `${baseUrl}/api/e-books/${id}` : `/api/e-books/${id}`;
         let res = await fetch(primaryUrl, {
             method: 'DELETE',
-            cache: 'no-store'
+            cache: 'no-store',
+            headers: {
+        authorization: `Bearer ${token}`,
+      },
         });
 
         if (!res.ok) {
             const adminUrl = baseUrl ? `${baseUrl}/api/admin/e-books/${id}` : `/api/admin/e-books/${id}`;
             res = await fetch(adminUrl, {
                 method: 'DELETE',
-                cache: 'no-store'
+                cache: 'no-store',
+                headers: {
+        authorization: `Bearer ${token}`,
+      },
             });
         }
 
@@ -226,12 +271,18 @@ export const deleteWriterEBook = async (id) => {
 
 // Get single ebook by ID
 export const getEBookById = async (id) => {
+   // JWT token Get
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
     try {
         if (!id) return { success: false, data: null };
 
         if (baseUrl) {
             try {
-                const res = await fetch(`${baseUrl}/api/e-books/${id}`, { cache: 'no-store' });
+                const res = await fetch(`${baseUrl}/api/e-books/${id}`, { cache: 'no-store', headers: {
+        authorization: `Bearer ${token}`,
+      },});
                 if (res.ok) {
                     const data = await res.json();
                     const ebook = data?.data || data;
@@ -262,10 +313,15 @@ export const getEBookById = async (id) => {
 export const GetEBookById = getEBookById;
 
 export const addBookmark = async (userId, book) => {
+
+   // JWT token Get
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
   try {
     const res = await fetch(`${baseUrl}/api/bookmarks`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" ,  authorization: `Bearer ${token}` },
       body: JSON.stringify({ userId, book }),
       cache: "no-store",
     });
@@ -280,10 +336,17 @@ export const addBookmark = async (userId, book) => {
 };
 
 export const getUserBookmarks = async (userId) => {
+   // JWT token Get
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
   try {
     if (!baseUrl || !userId) return { success: true, data: [] };
     const res = await fetch(`${baseUrl}/api/bookmarks/${encodeURIComponent(userId)}`, {
       cache: "no-store",
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
     });
     if (res.ok) {
       const data = await res.json();
@@ -297,10 +360,14 @@ export const getUserBookmarks = async (userId) => {
 };
 
 export const removeBookmark = async (userId, bookId) => {
+   // JWT token Get
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
   try {
     const res = await fetch(`${baseUrl}/api/bookmarks`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" ,authorization: `Bearer ${token}` },
       body: JSON.stringify({ userId, bookId }),
       cache: "no-store",
     });
@@ -315,10 +382,14 @@ export const removeBookmark = async (userId, bookId) => {
 };
 
 export const recordPaymentInDB = async (paymentData) => {
+   // JWT token Get
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
   try {
     const res = await fetch(`${baseUrl}/api/payment`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", authorization: `Bearer ${token}` },
       body: JSON.stringify(paymentData),
       cache: "no-store",
     });
@@ -333,10 +404,17 @@ export const recordPaymentInDB = async (paymentData) => {
 };
 
 export const getUserPurchases = async (userId) => {
+   // JWT token Get
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
   try {
     if (!baseUrl || !userId) return { success: true, data: [] };
     const res = await fetch(`${baseUrl}/api/purchases/${encodeURIComponent(userId)}`, {
       cache: "no-store",
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
     });
     if (res.ok) {
       const data = await res.json();
