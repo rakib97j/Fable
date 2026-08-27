@@ -254,4 +254,20 @@ export const removeBookmark = async (userId, bookId) => {
 };
 
 
-
+export const recordPaymentInDB = async (paymentData) => {
+  try {
+    const res = await fetch(`${baseUrl}/api/payment`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(paymentData),
+      cache: "no-store",
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return { success: false, message: data?.message || "Failed to record payment" };
+    }
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, message: error.message || "Network error." };
+  }
+};

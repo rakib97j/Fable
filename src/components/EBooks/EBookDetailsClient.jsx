@@ -22,6 +22,7 @@ import {
   Share2,
   ChevronLeft,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { addBookmark, getUserBookmarks, removeBookmark } from "@/lib/actions/eBooks";
@@ -35,6 +36,7 @@ export default function EBookDetailsClient({ ebook }) {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const [isPurchased, setIsPurchased] = useState(false);
+  const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("overview"); // 'overview' | 'preview'
   const [toastMessage, setToastMessage] = useState("");
 
@@ -171,18 +173,76 @@ export default function EBookDetailsClient({ ebook }) {
       })
     : "Recently Added";
 
-  // Purchase Button Click Handler (UI mock flow)
-  const handlePurchaseClick = () => {
+  // Check URL parameters for returning from Stripe Checkout
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const searchParams = new URLSearchParams(window.location.search);
+    const isSuccess = searchParams.get("success") === "true";
+    const sessionId = searchParams.get("session_id");
+    const isCanceled = searchParams.get("canceled") === "true";
+
+    if (isSuccess && sessionId) {
+      fetch(`/api/checkout_sessions/verify?session_id=${encodeURIComponent(sessionId)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.paid) {
+            setIsPurchased(true);
+            setActiveTab("preview");
+            showToast("🎉 Payment successful! Full content unlocked.");
+          } else {
+            showToast("Payment verification failed or session unpaid.");
+          }
+        })
+        .catch((err) => {
+          console.error("Verification error:", err);
+          showToast("Error verifying payment session.");
+        });
+    } else if (isCanceled) {
+      showToast("Payment process was canceled.");
+    }
+  }, []);
+
+  // Purchase Button Click Handler via Stripe Checkout
+  const handlePurchaseClick = async () => {
     if (isAuthor || isAdmin) return;
     if (isPurchased) {
       showToast("You already own this e-book!");
       setActiveTab("preview");
       return;
     }
+    if (!currentUser) {
+      showToast("Please sign in to purchase e-books!");
+      return;
+    }
 
-    // Toggle purchased UI state for demonstration
-    setIsPurchased(true);
-    showToast("🎉 Purchase successful! Full content unlocked.");
+    setIsPaymentLoading(true);
+    try {
+      const res = await fetch("/api/checkout_sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ebookId: bookIdStr,
+          title: ebook.title,
+          price: priceVal,
+          coverImage: ebook.coverImage || ebook.image,
+          description: ebook.description,
+          userId: userIdStr,
+          userEmail: currentUser.email,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        showToast(data.error || "Failed to initiate payment checkout.");
+        setIsPaymentLoading(false);
+      }
+    } catch (err) {
+      console.error("Checkout initiation error:", err);
+      showToast(err.message || "Failed to connect to payment gateway.");
+      setIsPaymentLoading(false);
+    }
   };
 
   // Page Preview Pagination Logic
@@ -385,10 +445,20 @@ export default function EBookDetailsClient({ ebook }) {
               ) : (
                 <button
                   onClick={handlePurchaseClick}
-                  className="flex-1 py-4 px-6 rounded-none bg-linear-to-tr from-rose-600 via-rose-500 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white font-semibold text-sm shadow-xl shadow-rose-600/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2.5 cursor-pointer"
+                  disabled={isPaymentLoading}
+                  className="flex-1 py-4 px-6 rounded-none bg-linear-to-tr from-rose-600 via-rose-500 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white font-semibold text-sm shadow-xl shadow-rose-600/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  <ShoppingCart className="w-5 h-5" />
-                  <span>Buy Now ({`$${priceVal.toFixed(2)}`})</span>
+                  {isPaymentLoading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin text-white" />
+                      <span>Redirecting to Stripe...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-5 h-5" />
+                      <span>Buy Now ({`$${priceVal.toFixed(2)}`})</span>
+                    </>
+                  )}
                 </button>
               )}
 
