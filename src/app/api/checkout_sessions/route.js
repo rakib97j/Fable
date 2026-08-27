@@ -59,6 +59,7 @@ export async function POST(req) {
         ebookId: String(ebookId),
         userId: String(userId || ''),
         userEmail: String(userEmail || ''),
+        type: String(body.type || 'ebook'),
       },
     }
 

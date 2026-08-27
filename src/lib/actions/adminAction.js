@@ -125,5 +125,23 @@ export const deleteUser = async (id) => {
     }
 };
 
+export const getAdminPayments = async () => {
+    try {
+        const primaryUrl = baseUrl ? `${baseUrl}/api/admin/payments` : `/api/admin/payments`;
+        const res = await fetch(primaryUrl, { cache: 'no-store' });
+        
+        if (!res.ok) return { success: false, data: [] };
+        
+        const data = await res.json();
+        const payments = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+
+        return { success: true, data: payments };
+    } catch (error) {
+        console.error("Error in getAdminPayments action:", error);
+        return { success: false, data: [] };
+    }
+};
+
+
 
 

@@ -1,18 +1,11 @@
-
+import React from "react";
+import AnalyticsOverviewAdmin from "@/components/dashboard/AdminComponents/AnalyticsOverviewAdmin";
 
 export const metadata = {
-  title: 'Fable || Admin',
-  description: 'This is Admin Page',
-}
+  title: 'Fable || Admin Overview',
+  description: 'Admin platform activity, sales analytics, and metric overview.',
+};
 
 export default function AdminDashboardPage() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-serif font-semibold text-zinc-100">Fable Admin Overview</h1>
-      <p className="text-sm text-zinc-400">Platform activity, user management, and transaction overview.</p>
-      <div className="p-12 rounded-none border border-zinc-800/80 bg-[#121216]/60 text-center text-sm text-zinc-500">
-        Admin Analytics Overview.
-      </div>
-    </div>
-  );
+  return <AnalyticsOverviewAdmin />;
 }

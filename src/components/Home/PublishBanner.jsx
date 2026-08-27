@@ -3,14 +3,21 @@
 import React from "react";
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function PublishBanner() {
   return (
-    <section className="w-full py-12 md:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div className="relative overflow-hidden  bg-[#121215] border border-zinc-800/80 p-8 sm:p-10 md:p-12 shadow-2xl transition-all duration-300">
+    <section className="w-full py-12 md:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto font-sans">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.6 }}
+        className="relative overflow-hidden bg-[#121215] border border-zinc-800/80 p-8 sm:p-10 md:p-12 shadow-2xl transition-all duration-300 rounded-none"
+      >
         {/* Soft top-left red glow effect */}
         <div 
-          className="absolute -top-20 -left-20 w-80 h-80 bg-rose-600/10 rounded-full blur-3xl pointer-events-none" 
+          className="absolute -top-20 -left-20 w-80 h-80 bg-rose-600/10 rounded-none blur-3xl pointer-events-none" 
           aria-hidden="true" 
         />
         <div 
@@ -36,17 +43,23 @@ export default function PublishBanner() {
             </p>
           </div>
 
-          {/* Action Button */}
-          <div className="shrink-0  pt-2 md:pt-0">
-            <Link
-              href="/dashboard/writer/add-ebook"
-              className="inline-flex items-center justify-center px-3 py-2  bg-[#f83b60] hover:bg-[#e02e52] active:bg-[#c92444] text-white font-medium text-base transition-all duration-200 shadow-lg shadow-rose-950/30 hover:shadow-rose-900/50 hover:scale-[1.02] active:scale-[0.98]"
+          {/* Action Button with Spring Hover & Tap Scaling */}
+          <div className="shrink-0 pt-2 md:pt-0">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
-              Start Writing
-            </Link>
+              <Link
+                href="/dashboard/writer/add-ebook"
+                className="inline-flex items-center justify-center px-6 py-3.5 bg-[#f83b60] hover:bg-[#e02e52] active:bg-[#c92444] text-white font-semibold text-sm transition-all duration-200 shadow-lg shadow-rose-950/30 rounded-none uppercase tracking-wider cursor-pointer"
+              >
+                Start Writing Today
+              </Link>
+            </motion.div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }

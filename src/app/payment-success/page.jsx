@@ -15,6 +15,12 @@ import {
   Library,
   BookX,
   Loader2,
+  Download,
+  ShieldCheck,
+  Calendar,
+  ExternalLink,
+  ChevronRight,
+  BookmarkCheck,
 } from "lucide-react";
 import { getEBookById } from "@/lib/actions/eBooks";
 
@@ -66,46 +72,61 @@ function PaymentSuccessContent() {
     verifyAndFetch();
   }, [sessionId, ebookIdParam]);
 
+  // Loading State UI
   if (loading) {
     return (
-      <div className="min-h-[80vh] w-full flex items-center justify-center p-4 bg-[#0a0a0c]">
-        <div className="flex flex-col items-center gap-4 p-8 rounded-none bg-[#121216] border border-zinc-800 text-center max-w-sm w-full">
-          <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
-          <h3 className="text-lg font-bold text-zinc-100 font-serif">Verifying Payment...</h3>
-          <p className="text-xs text-zinc-400">Please wait while we confirm your Stripe checkout session.</p>
+      <div className="min-h-[85vh] w-full flex items-center justify-center p-6 bg-[#0a0a0c]">
+        <div className="flex flex-col items-center text-center p-10 rounded-3xl bg-[#121216]/80 border border-zinc-800/80 shadow-2xl backdrop-blur-2xl max-w-md w-full space-y-4">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <Loader2 className="w-8 h-8 animate-spin" />
+            </div>
+            <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300 animate-ping" />
+          </div>
+          <h3 className="text-xl font-serif font-semibold text-zinc-100">
+            Confirming Payment...
+          </h3>
+          <p className="text-xs text-zinc-400 leading-relaxed max-w-xs">
+            Securing transaction authorization with Stripe. Your e-book will be ready in a moment.
+          </p>
         </div>
       </div>
     );
   }
 
+  // Error / Unverified State UI
   if (error || !sessionDetails) {
     return (
-      <div className="min-h-[80vh] w-full flex items-center justify-center p-4 bg-[#0a0a0c]">
-        <div className="max-w-md w-full text-center flex flex-col items-center p-8 rounded-none bg-[#121216] border border-zinc-800 shadow-2xl">
-          <div className="w-16 h-16 mb-4 rounded-none bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
-            <BookX className="w-8 h-8" />
+      <div className="min-h-[85vh] w-full flex items-center justify-center p-6 bg-[#0a0a0c]">
+        <div className="max-w-lg w-full text-center flex flex-col items-center p-8 sm:p-10 rounded-3xl bg-[#121216]/80 border border-zinc-800/80 shadow-2xl backdrop-blur-2xl space-y-5">
+          <div className="w-20 h-20 rounded-3xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 shadow-xl shadow-rose-500/5">
+            <BookX className="w-10 h-10" />
           </div>
-          <span className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider bg-rose-500/10 text-rose-400 mb-3 border border-rose-500/20">
-            Payment Unverified
-          </span>
-          <h2 className="text-2xl font-serif font-bold text-zinc-100 mb-2">
-            Unable to Verify Payment
-          </h2>
-          <p className="text-xs text-zinc-400 mb-6 leading-relaxed">
-            {error || "We could not confirm your purchase. If you were charged, please check your email or contact support."}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 w-full">
+          
+          <div className="space-y-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider bg-rose-500/10 text-rose-400 rounded-full border border-rose-500/20">
+              Payment Unverified
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-zinc-100">
+              Unable to Confirm Order
+            </h2>
+            <p className="text-xs text-zinc-400 leading-relaxed max-w-md mx-auto">
+              {error || "We could not verify your purchase session. If funds were deducted, don't worry—your order has been logged."}
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 w-full pt-4 border-t border-zinc-800/60">
             <Link
               href="/e-books"
-              className="flex-1 py-3 px-4 rounded-none bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs text-center border border-zinc-700 transition-all"
+              className="flex-1 py-3 px-4 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 font-medium text-xs text-center border border-zinc-700/80 transition-all"
             >
-              Browse E-books
+              Browse E-Books
             </Link>
             <Link
               href="/dashboard/reader/purchased-ebooks"
-              className="flex-1 py-3 px-4 rounded-none bg-rose-600 hover:bg-rose-500 text-white font-medium text-xs text-center shadow-lg transition-all"
+              className="flex-1 py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-medium text-xs text-center shadow-lg shadow-rose-600/20 transition-all"
             >
-              My Library
+              Check My Library
             </Link>
           </div>
         </div>
@@ -114,46 +135,60 @@ function PaymentSuccessContent() {
   }
 
   const finalEbookId = sessionDetails.ebookId || ebookIdParam;
-  const bookTitle = ebookDetails?.title || "Digital E-book";
+  const bookTitle = ebookDetails?.title || "Digital E-Book";
   const coverImage = ebookDetails?.coverImage || ebookDetails?.image;
   const authorName = ebookDetails?.writerName || ebookDetails?.author || "Fable Author";
+  const genre = ebookDetails?.genre || ebookDetails?.category || "E-Book";
+  const pricePaid = sessionDetails.amountTotal || "0.00";
+  const formattedDate = sessionDetails.createdAt
+    ? new Date(sessionDetails.createdAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : "Just now";
 
   return (
-    <div className="min-h-[85vh] w-full flex items-center justify-center py-12 px-4 bg-[#0a0a0c]">
-      <div className="max-w-xl w-full flex flex-col items-center">
-        {/* Main Success Glass Card */}
-        <div className="w-full rounded-none bg-[#121216] border border-zinc-800/90 shadow-2xl p-6 sm:p-10 relative overflow-hidden backdrop-blur-xl">
-          {/* Subtle Accent Glow */}
-          <div className="absolute -top-24 -left-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-[85vh] w-full flex items-center justify-center py-14 px-4 bg-[#0a0a0c] relative overflow-hidden">
+      {/* Background Ambient Glows */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-10 right-1/4 w-[350px] h-[350px] bg-amber-500/10 rounded-full blur-[100px] pointer-events-none" />
 
-          {/* Success Badge Icon */}
-          <div className="flex flex-col items-center text-center mb-8">
-            <div className="relative mb-4">
-              <div className="w-20 h-20 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/10">
-                <CheckCircle2 className="w-10 h-10 text-emerald-400" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300 animate-pulse">
-                <Sparkles className="w-4 h-4" />
+      <div className="max-w-2xl w-full flex flex-col items-center relative z-10">
+        {/* Main Success Container */}
+        <div className="w-full rounded-3xl bg-[#121216]/80 border border-zinc-800/80 shadow-2xl p-6 sm:p-10 backdrop-blur-2xl space-y-8">
+          
+          {/* Header Banner & Animated Badge */}
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="relative">
+              {/* Outer pulsing ring */}
+              <div className="absolute -inset-2 rounded-full bg-linear-to-r from-emerald-500/30 to-teal-500/30 blur-md animate-pulse" />
+              <div className="w-20 h-20 rounded-full bg-linear-to-tr from-emerald-600 to-teal-500 border border-emerald-400/40 flex items-center justify-center text-white shadow-2xl shadow-emerald-500/30 relative">
+                <CheckCircle2 className="w-10 h-10 text-white stroke-[2.5]" />
               </div>
             </div>
 
-            <span className="px-3.5 py-1 text-[11px] font-bold uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-2">
-              Payment Successful
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-white tracking-tight">
-              Thank You for Your Order!
-            </h1>
-            <p className="text-xs text-zinc-400 mt-2 max-w-md leading-relaxed">
-              Your payment has been processed successfully. Your e-book is now unlocked and added to your personal library.
-            </p>
+            <div className="space-y-1.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <ShieldCheck className="w-3.5 h-3.5" /> Order Verified
+              </span>
+              <h1 className="text-3xl sm:text-4xl font-serif font-bold text-white tracking-tight">
+                Payment Successful!
+              </h1>
+              <p className="text-xs sm:text-sm text-zinc-400 max-w-md mx-auto leading-relaxed">
+                Thank you for your purchase. Your digital e-book has been unlocked and added to your personal library.
+              </p>
+            </div>
           </div>
 
-          {/* E-Book Purchased Card */}
-          {ebookDetails && (
-            <div className="mb-6 p-4 rounded-none bg-[#0a0a0c] border border-zinc-800 flex items-center gap-4">
+          {/* E-Book Access Highlight Card */}
+          {ebookDetails ? (
+            <div className="p-5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex flex-col sm:flex-row items-center gap-5 relative overflow-hidden group hover:border-zinc-700/80 transition-all">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl pointer-events-none" />
+              
+              {/* Cover Image */}
               {coverImage ? (
-                <div className="relative w-16 h-22 shrink-0 bg-zinc-900 border border-zinc-800 overflow-hidden shadow-md">
+                <div className="relative w-24 h-32 shrink-0 rounded-xl bg-zinc-950 border border-zinc-800 overflow-hidden shadow-lg group-hover:scale-105 transition-transform duration-300">
                   <Image
                     src={coverImage}
                     alt={bookTitle}
@@ -162,82 +197,100 @@ function PaymentSuccessContent() {
                   />
                 </div>
               ) : (
-                <div className="w-16 h-22 shrink-0 bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-600">
-                  <BookOpen className="w-8 h-8" />
+                <div className="w-24 h-32 shrink-0 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center text-zinc-600 shadow-lg">
+                  <BookOpen className="w-10 h-10" />
                 </div>
               )}
-              <div className="flex-1 min-w-0">
-                <span className="text-[10px] font-semibold text-rose-400 uppercase tracking-wider block">
-                  Unlocked E-book
-                </span>
-                <h3 className="text-base font-serif font-bold text-white truncate">
+
+              {/* Book Details */}
+              <div className="flex-1 min-w-0 text-center sm:text-left space-y-2">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                    {genre}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400">
+                    <BookmarkCheck className="w-3.5 h-3.5" /> Full Access Unlocked
+                  </span>
+                </div>
+
+                <h3 className="text-lg font-serif font-bold text-white line-clamp-1">
                   {bookTitle}
                 </h3>
-                <p className="text-xs text-zinc-400 truncate">
-                  By {authorName}
+                <p className="text-xs text-zinc-400">
+                  By <span className="text-zinc-200 font-medium">{authorName}</span>
                 </p>
-                <div className="mt-2 inline-flex items-center gap-1.5 text-[11px] text-emerald-400 font-semibold">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Full Access Granted
+
+                <div className="pt-1 flex items-center justify-center sm:justify-start gap-3 text-xs text-zinc-400 font-mono">
+                  <span className="text-zinc-300 font-semibold">${pricePaid} USD</span>
+                  <span>•</span>
+                  <span>{formattedDate}</span>
                 </div>
               </div>
             </div>
+          ) : (
+            <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex items-center gap-3 text-xs text-emerald-400">
+              <CheckCircle2 className="w-5 h-5 shrink-0" />
+              <span>Your e-book purchase has been registered and associated with your account.</span>
+            </div>
           )}
 
-          {/* Receipt Breakdown */}
-          <div className="mb-8 p-4 rounded-none bg-[#0a0a0c]/60 border border-zinc-800/80 space-y-3">
-            <div className="flex items-center justify-between text-xs pb-2.5 border-b border-zinc-800/80">
-              <span className="text-zinc-400 flex items-center gap-1.5">
-                <Receipt className="w-3.5 h-3.5 text-zinc-500" /> Amount Paid
+          {/* Detailed Payment Breakdown */}
+          <div className="rounded-2xl bg-zinc-950/60 border border-zinc-800/80 p-5 space-y-3.5">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80 text-xs">
+              <span className="text-zinc-400 flex items-center gap-2">
+                <Receipt className="w-4 h-4 text-zinc-500" /> Amount Paid
               </span>
-              <span className="font-serif font-bold text-white text-sm">
-                ${sessionDetails.amountTotal} {sessionDetails.currency}
+              <span className="font-mono font-bold text-emerald-400 text-sm">
+                ${sessionDetails.amountTotal} <span className="text-zinc-500 text-xs">{sessionDetails.currency}</span>
               </span>
             </div>
 
             {sessionDetails.customerEmail && (
-              <div className="flex items-center justify-between text-xs pb-2.5 border-b border-zinc-800/80">
-                <span className="text-zinc-400 flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5 text-zinc-500" /> Customer Email
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80 text-xs">
+                <span className="text-zinc-400 flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-zinc-500" /> Customer Email
                 </span>
-                <span className="text-zinc-200 font-mono text-[11px] truncate max-w-50">
+                <span className="text-zinc-200 font-mono text-xs truncate max-w-[200px]">
                   {sessionDetails.customerEmail}
                 </span>
               </div>
             )}
 
-            <div className="flex items-center justify-between text-xs pb-2.5 border-b border-zinc-800/80">
-              <span className="text-zinc-400 flex items-center gap-1.5">
-                <CreditCard className="w-3.5 h-3.5 text-zinc-500" /> Payment Method
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80 text-xs">
+              <span className="text-zinc-400 flex items-center gap-2">
+                <CreditCard className="w-4 h-4 text-zinc-500" /> Payment Method
               </span>
-              <span className="text-zinc-300 font-medium capitalize">
-                Stripe ({sessionDetails.paymentMethod})
+              <span className="text-zinc-300 font-medium capitalize flex items-center gap-1.5">
+                Stripe ({sessionDetails.paymentMethod || "card"})
               </span>
             </div>
 
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-zinc-400">Transaction Ref</span>
-              <span className="text-zinc-500 font-mono text-[10px] truncate max-w-45" title={sessionDetails.sessionId}>
+            <div className="flex items-center justify-between text-xs pt-0.5">
+              <span className="text-zinc-400 flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-zinc-500" /> Transaction Ref
+              </span>
+              <span className="text-zinc-500 font-mono text-[11px] truncate max-w-[180px]" title={sessionDetails.sessionId}>
                 {sessionDetails.sessionId}
               </span>
             </div>
           </div>
 
           {/* Action Navigation */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             {finalEbookId && (
               <Link
                 href={`/e-books/${finalEbookId}?success=true&session_id=${sessionDetails.sessionId}`}
-                className="flex-1 py-3.5 px-6 rounded-none bg-linear-to-tr from-rose-600 via-rose-500 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white font-semibold text-xs shadow-lg shadow-rose-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+                className="py-3.5 px-6 rounded-xl bg-linear-to-r from-rose-600 via-rose-500 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white font-semibold text-xs shadow-xl shadow-rose-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
               >
                 <BookOpen className="w-4 h-4" />
                 <span>Read E-Book Now</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             )}
 
             <Link
               href="/dashboard/reader/purchased-ebooks"
-              className="py-3.5 px-5 rounded-none bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 font-semibold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="py-3.5 px-6 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700/80 text-zinc-200 font-semibold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
             >
               <Library className="w-4 h-4 text-zinc-400" />
               <span>My Purchased Library</span>
@@ -245,13 +298,14 @@ function PaymentSuccessContent() {
           </div>
         </div>
 
-        {/* Back link */}
-        <div className="mt-6">
+        {/* Footer Navigation Link */}
+        <div className="mt-8 text-center">
           <Link
             href="/e-books"
-            className="text-xs text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
+            className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors group"
           >
-            <span>Browse More E-Books</span>
+            <span>Explore More E-Books</span>
+            <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
       </div>
@@ -263,8 +317,8 @@ export default function PaymentSuccessPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[80vh] w-full flex items-center justify-center p-4 bg-[#0a0a0c]">
-          <div className="flex flex-col items-center gap-4 p-8 rounded-none bg-[#121216] border border-zinc-800 text-center max-w-sm w-full">
+        <div className="min-h-[85vh] w-full flex items-center justify-center p-6 bg-[#0a0a0c]">
+          <div className="flex flex-col items-center gap-4 p-8 rounded-3xl bg-[#121216]/80 border border-zinc-800/80 text-center max-w-sm w-full backdrop-blur-2xl">
             <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
             <h3 className="text-lg font-bold text-zinc-100 font-serif">Loading Confirmation...</h3>
           </div>

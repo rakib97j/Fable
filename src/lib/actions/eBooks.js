@@ -1,10 +1,54 @@
 "use server"
 
+import { MongoClient } from "mongodb";
+
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+const mongoUri = process.env.MONGODB_URI;
+const dbName = process.env.AUTH_DB_NAME || "fable_db";
+
+/**
+ * Direct MongoDB helper when API endpoint is unavailable or returns empty
+ */
+const getEbooksFromDb = async (query = {}, limit = 0, sample = false) => {
+  if (!mongoUri) return [];
+  try {
+    const client = new MongoClient(mongoUri);
+    await client.connect();
+    const db = client.db(dbName);
+
+    let collection = db.collection("e-books");
+    let count = await collection.countDocuments();
+    if (count === 0) {
+      const altCol = db.collection("ebooks");
+      const altCount = await altCol.countDocuments();
+      if (altCount > 0) collection = altCol;
+    }
+
+    let books = [];
+    if (sample && limit > 0) {
+      books = await collection.aggregate([{ $match: query }, { $sample: { size: limit } }]).toArray();
+    } else if (limit > 0) {
+      books = await collection.find(query).limit(limit).toArray();
+    } else {
+      books = await collection.find(query).toArray();
+    }
+
+    await client.close();
+
+    return books.map((b) => ({
+      ...b,
+      _id: b._id ? String(b._id) : undefined,
+    }));
+  } catch (err) {
+    console.error("MongoDB direct ebook fetch error:", err);
+    return [];
+  }
+};
 
 export const AddEBooks = async (newEBookData) => {
     try {
-        const res = await fetch(`${baseUrl}/api/e-books`, {
+        const primaryUrl = baseUrl ? `${baseUrl}/api/e-books` : `/api/e-books`;
+        const res = await fetch(primaryUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -37,67 +81,84 @@ export const AddEBooks = async (newEBookData) => {
 // All ebooks for Browser E-Books 
 export const getEBooks = async () => {
     try {
-        if (!baseUrl) return { success: true, data: [] };
+        if (baseUrl) {
+            const res = await fetch(`${baseUrl}/api/e-books`, { cache: 'no-store' });
 
-        const res = await fetch(`${baseUrl}/api/e-books`, { cache: 'no-store' });
-
-        if (res.ok) {
-            const data = await res.json();
-
-            if (Array.isArray(data)) return { success: true, data };
-            if (Array.isArray(data?.data)) return { success: true, data: data.data };
+            if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data) && data.length > 0) return { success: true, data };
+                if (Array.isArray(data?.data) && data.data.length > 0) return { success: true, data: data.data };
+            }
         }
 
-        return { success: true, data: [] };
+        // Fallback: direct MongoDB query
+        const dbBooks = await getEbooksFromDb();
+        return { success: true, data: dbBooks };
     } catch (error) {
         console.error("Error fetching e-books:", error);
-        return { success: false, data: [], error: error.message };
+        const dbBooks = await getEbooksFromDb();
+        return { success: true, data: dbBooks };
     }
 };
 export const GetEBooks = getEBooks;
 
-
-
 // for writer manage Ebooks 
 export const getEBooksByWriter = async (writerId) => {
     try {
-        if (!baseUrl || !writerId) return { success: true, data: [] };
+        if (!writerId) return { success: true, data: [] };
 
-        const res = await fetch(`${baseUrl}/api/e-books/writer/${writerId}`, { cache: 'no-store' });
+        if (baseUrl) {
+            const res = await fetch(`${baseUrl}/api/e-books/writer/${writerId}`, { cache: 'no-store' });
 
-        if (res.ok) {
-            const data = await res.json();
-            if (Array.isArray(data)) return { success: true, data };
-            if (Array.isArray(data?.data)) return { success: true, data: data.data };
+            if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data) && data.length > 0) return { success: true, data };
+                if (Array.isArray(data?.data) && data.data.length > 0) return { success: true, data: data.data };
+            }
         }
 
-        return { success: true, data: [] };
+        // Fallback: direct MongoDB query by writer email/ID
+        const decodedWriterId = decodeURIComponent(writerId);
+        const dbBooks = await getEbooksFromDb({
+          $or: [
+            { writerEmail: decodedWriterId },
+            { writerId: decodedWriterId },
+            { author: decodedWriterId }
+          ]
+        });
+        return { success: true, data: dbBooks };
     } catch (error) {
         console.error("Error fetching writer e-books:", error);
-        return { success: false, data: [], error: error.message };
+        return { success: false, data: [] };
     }
 };
 export const GetWriterEBooks = getEBooksByWriter;
 
-
-
-
 // Random ebooks for Featured E-Books
 export const getRandomEBooks = async () => {
     try {
-        const url = `${baseUrl}/api/e-books/random`
-        const res = await fetch(url, { cache: 'no-store' });
+        if (baseUrl) {
+            const url = `${baseUrl}/api/e-books/random`;
+            const res = await fetch(url, { cache: 'no-store' });
 
-        if (res.ok) {
-            const data = await res.json();
-            if (Array.isArray(data)) return { success: true, data };
-            if (Array.isArray(data?.data)) return { success: true, data: data.data };
+            if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data) && data.length > 0) return { success: true, data };
+                if (Array.isArray(data?.data) && data.data.length > 0) return { success: true, data: data.data };
+            }
         }
 
-        return { success: true, data: [] };
+        // Fallback: direct MongoDB random sampling
+        const dbBooks = await getEbooksFromDb({}, 4, true);
+        if (dbBooks.length > 0) return { success: true, data: dbBooks };
+
+        // If sample empty, get any ebooks
+        const allBooks = await getEbooksFromDb({}, 4, false);
+        return { success: true, data: allBooks };
     } catch (error) {
         console.error("Error fetching random e-books:", error);
-        return { success: false, data: [], error: error.message };
+        const dbBooks = await getEbooksFromDb({}, 4, false);
+        return { success: true, data: dbBooks };
     }
 };
 export const GetRandomEBooks = getRandomEBooks;
@@ -253,7 +314,6 @@ export const removeBookmark = async (userId, bookId) => {
   }
 };
 
-
 export const recordPaymentInDB = async (paymentData) => {
   try {
     const res = await fetch(`${baseUrl}/api/payment`, {
@@ -269,5 +329,23 @@ export const recordPaymentInDB = async (paymentData) => {
     return { success: true, data };
   } catch (error) {
     return { success: false, message: error.message || "Network error." };
+  }
+};
+
+export const getUserPurchases = async (userId) => {
+  try {
+    if (!baseUrl || !userId) return { success: true, data: [] };
+    const res = await fetch(`${baseUrl}/api/purchases/${encodeURIComponent(userId)}`, {
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) return { success: true, data };
+      if (Array.isArray(data?.data)) return { success: true, data: data.data };
+    }
+    return { success: true, data: [] };
+  } catch (error) {
+    console.error("getUserPurchases error:", error);
+    return { success: false, data: [], error: error.message };
   }
 };

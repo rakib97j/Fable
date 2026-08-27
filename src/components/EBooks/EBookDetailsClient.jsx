@@ -25,7 +25,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
-import { addBookmark, getUserBookmarks, removeBookmark } from "@/lib/actions/eBooks";
+import { addBookmark, getUserBookmarks, removeBookmark, getUserPurchases } from "@/lib/actions/eBooks";
 
 export default function EBookDetailsClient({ ebook }) {
   const [mounted, setMounted] = useState(false);
@@ -46,6 +46,27 @@ export default function EBookDetailsClient({ ebook }) {
   React.useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Check if current user has already purchased this ebook (lifetime access)
+  React.useEffect(() => {
+    async function checkPurchaseStatus() {
+      if (!userIdStr || !bookIdStr) return;
+      try {
+        const res = await getUserPurchases(userIdStr);
+        if (res?.success && Array.isArray(res.data)) {
+          const bought = res.data.some(
+            (item) => String(item.ebookId) === bookIdStr || String(item._id) === bookIdStr
+          );
+          if (bought) {
+            setIsPurchased(true);
+          }
+        }
+      } catch (err) {
+        console.error("Error checking purchase status:", err);
+      }
+    }
+    checkPurchaseStatus();
+  }, [userIdStr, bookIdStr]);
 
   // Fetch initial bookmark state for logged in user
   React.useEffect(() => {
@@ -228,6 +249,7 @@ export default function EBookDetailsClient({ ebook }) {
           description: ebook.description,
           userId: userIdStr,
           userEmail: currentUser.email,
+          type: "ebook",
         }),
       });
 

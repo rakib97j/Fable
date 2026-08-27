@@ -1,134 +1,97 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, Navigation, EffectFade } from "swiper/modules";
+import { Autoplay, Pagination, EffectFade } from "swiper/modules";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
-import "swiper/css/navigation";
 import "swiper/css/effect-fade";
 
 import { 
-  ChevronLeft, 
-  ChevronRight, 
   BookOpen, 
-  Star, 
-  Clock, 
   Sparkles,
   ArrowRight,
+  Compass,
+  Feather,
   Bookmark
 } from "lucide-react";
 
-// Default Dynamic Ebook Learning Platform Slider Data
-const DEFAULT_SLIDES = [
+const HERO_SLIDES = [
   {
-    id: "slide-1",
-    tag: "FEATURED COURSE & E-BOOK",
-    category: "Computer Science",
-    title: "Mastering Modern System Design & Scalability",
-    author: "Dr. Aris Thorne",
-    authorTitle: "Senior Principal Architect",
-    rating: 4.9,
-    reviewsCount: "1,240",
-    readTime: "12h Read + Interactive Labs",
-    description: "Build ultra-resilient distributed systems, microservices, and cloud infrastructure with hands-on architectural blueprints.",
-    coverImage: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=1200&auto=format&fit=crop",
-    bgGradient: "from-blue-950/90 via-slate-900/95 to-zinc-950",
-    accentColor: "from-blue-500 to-indigo-600",
-    badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/40",
-    primaryCta: "Start Reading Now",
-    secondaryCta: "Preview Chapter 1"
-  },
-  {
-    id: "slide-2",
-    tag: "MINDSET & PRODUCTIVITY",
-    category: "Psychology & Learning",
-    title: "The Art of Deep Focus & Mindful Knowledge Retention",
-    author: "Elena Rostova",
-    authorTitle: "Cognitive Neuroscientist",
-    rating: 4.8,
-    reviewsCount: "980",
-    readTime: "6h Read + Audio Companion",
-    description: "Unlock rapid learning techniques, combat digital fatigue, and build high-efficiency study habits grounded in neuroscience.",
-    coverImage: "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=1200&auto=format&fit=crop",
-    bgGradient: "from-emerald-950/90 via-zinc-900/95 to-zinc-950",
-    accentColor: "from-emerald-500 to-teal-600",
-    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
-    primaryCta: "Begin Masterclass",
-    secondaryCta: "Listen Sample"
-  },
-  {
-    id: "slide-3",
-    tag: "ADVANCED SCI-TECH",
-    category: "Physics & Artificial Intelligence",
-    title: "Quantum Computing: Fundamentals & Quantum AI",
-    author: "Prof. Marcus Vance",
-    authorTitle: "Quantum Researcher at CERN",
-    rating: 4.95,
-    reviewsCount: "2,410",
-    readTime: "15h Read + Python Demos",
-    description: "Demystify qubits, superposition, quantum algorithms, and next-generation machine learning with practical code examples.",
-    coverImage: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=1200&auto=format&fit=crop",
-    bgGradient: "from-violet-950/90 via-purple-900/95 to-zinc-950",
-    accentColor: "from-violet-500 to-purple-600",
-    badgeColor: "bg-violet-500/20 text-violet-300 border-violet-500/40",
-    primaryCta: "Explore Interactive Book",
-    secondaryCta: "View Syllabus"
-  },
-  {
-    id: "slide-4",
-    tag: "FINANCE & WEALTH",
-    category: "Economics & Strategy",
-    title: "Financial Freedom in the Digital Economy",
-    author: "Sarah Lin, CFA",
-    authorTitle: "Portfolio Strategist",
-    rating: 4.87,
-    reviewsCount: "1,850",
-    readTime: "8h Read + Wealth Calculators",
-    description: "A comprehensive handbook on global markets, risk management, asset allocation, and passive income architecture.",
-    coverImage: "https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=1200&auto=format&fit=crop",
-    bgGradient: "from-amber-950/90 via-zinc-900/95 to-zinc-950",
-    accentColor: "from-amber-500 to-orange-600",
-    badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/40",
-    primaryCta: "Read Free Preview",
-    secondaryCta: "Bookmark Book"
-  },
-  {
-    id: "slide-5",
-    tag: "CREATIVE & DESIGN",
-    category: "UI/UX & Product Design",
-    title: "Design Systems: Crafting Enterprise Products",
-    author: "Alex Mercer",
-    authorTitle: "Design Director",
-    rating: 4.92,
-    reviewsCount: "3,120",
-    readTime: "10h Read + Figma UI Kit",
-    description: "Learn how modern tech giants architect scalable design systems, component libraries, and cohesive user experiences.",
-    coverImage: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop",
-    bgGradient: "from-rose-950/90 via-pink-950/90 to-zinc-950",
-    accentColor: "from-rose-500 to-pink-600",
+    id: "hero-1",
+    subheading: "EXPLORE ORIGINAL STORIES & DIGITAL MASTERCLASSES",
+    titlePrefix: "Discover & Read",
+    highlightText: "Original Ebooks",
+    description: "Immerse yourself in thousands of original ebooks, exclusive fiction sagas, and expert-authored guides available for instant digital reading.",
+    bgImage: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1920&auto=format&fit=crop",
+    accentColor: "from-rose-400 via-pink-500 to-amber-300",
     badgeColor: "bg-rose-500/20 text-rose-300 border-rose-500/40",
-    primaryCta: "Start Learning",
-    secondaryCta: "View Resources"
+    primaryCta: "Browse Ebooks",
+    primaryLink: "/e-books",
+    secondaryCta: "Publish Your Work",
+    secondaryLink: "/dashboard/writer"
+  },
+  {
+    id: "hero-2",
+    subheading: "CURATED LITERARY SANCTUARY",
+    titlePrefix: "Unleash Imagination with",
+    highlightText: "Indie Authors",
+    description: "Connect directly with independent writers, unearth underground literary masterpieces, and support passionate creators worldwide.",
+    bgImage: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=1920&auto=format&fit=crop",
+    accentColor: "from-amber-400 via-rose-500 to-pink-400",
+    badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+    primaryCta: "Explore Catalog",
+    primaryLink: "/e-books",
+    secondaryCta: "Top Writers",
+    secondaryLink: "/dashboard/writer"
+  },
+  {
+    id: "hero-3",
+    subheading: "UNLIMITED DIGITAL ACCESS",
+    titlePrefix: "Build Your Personal",
+    highlightText: "Digital Library",
+    description: "Enjoy rich typography, interactive bookmarks, cross-device syncing, and lifetime access to your acquired collection.",
+    bgImage: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=1920&auto=format&fit=crop",
+    accentColor: "from-indigo-400 via-purple-400 to-rose-400",
+    badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40",
+    primaryCta: "Browse Collection",
+    primaryLink: "/e-books",
+    secondaryCta: "Reader Dashboard",
+    secondaryLink: "/dashboard/reader"
+  },
+  {
+    id: "hero-4",
+    subheading: "PUBLISH & DISTRIBUTE GLOBALLY",
+    titlePrefix: "Share Your Voice with",
+    highlightText: "Global Readers",
+    description: "Are you an author? Join Fable's publishing platform to publish original ebooks, reach a global audience, and monetize your work.",
+    bgImage: "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1920&auto=format&fit=crop",
+    accentColor: "from-pink-400 via-rose-500 to-amber-400",
+    badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/40",
+    primaryCta: "Start Publishing",
+    primaryLink: "/dashboard/writer/add-ebook",
+    secondaryCta: "Writer Studio",
+    secondaryLink: "/dashboard/writer"
   }
 ];
 
-export default function HeroSlider({ slides = DEFAULT_SLIDES, autoPlayInterval = 5000 }) {
-  const prevRef = useRef(null);
-  const nextRef = useRef(null);
+export default function HeroSlider({ slides = HERO_SLIDES, autoPlayInterval = 5000 }) {
+  const [activeIndex, setActiveIndex] = useState(0);
 
   if (!slides || slides.length === 0) return null;
 
   return (
-    <section className="relative w-full h-[calc(100vh-4rem)] min-h-137.5 overflow-hidden select-none bg-zinc-950">
+    <section className="relative w-full h-[calc(100vh-4rem)] min-h-[550px] max-h-[850px] overflow-hidden select-none bg-zinc-950 font-sans">
       <Swiper
-        modules={[Autoplay, Pagination, Navigation, EffectFade]}
+        modules={[Autoplay, Pagination, EffectFade]}
         effect="fade"
         fadeEffect={{ crossFade: true }}
-        speed={800}
+        speed={900}
         loop={true}
         autoplay={{
           delay: autoPlayInterval,
@@ -137,121 +100,124 @@ export default function HeroSlider({ slides = DEFAULT_SLIDES, autoPlayInterval =
         }}
         pagination={{
           clickable: true,
-          dynamicBullets: true,
+          el: ".hero-pagination",
+          bulletActiveClass: "!bg-rose-500 !w-8 !rounded-none",
+          bulletClass: "inline-block w-2.5 h-2.5 bg-zinc-600 transition-all duration-300 mx-1 cursor-pointer hover:bg-zinc-400 rounded-none",
         }}
-        navigation={{
-          prevEl: prevRef.current,
-          nextEl: nextRef.current,
-        }}
-        onBeforeInit={(swiper) => {
-          swiper.params.navigation.prevEl = prevRef.current;
-          swiper.params.navigation.nextEl = nextRef.current;
-        }}
+        onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
         className="w-full h-full hero-swiper"
       >
-        {slides.map((slide) => (
-          <SwiperSlide key={slide.id} className="relative w-full h-full">
-            {/* Slide Background Container */}
-            <div className="absolute inset-0 z-0">
-              <Image
-                src={slide.coverImage}
-                alt={slide.title}
-                fill
-                priority
-                className="object-cover opacity-30 scale-105 filter blur-lg"
-                sizes="100vw"
-              />
-              <div className={`absolute inset-0 bg-linear-to-r ${slide.bgGradient}`} />
-              <div className="absolute inset-0 bg-zinc-950/40 backdrop-brightness-90" />
-            </div>
+        {slides.map((slide, index) => {
+          const isActive = activeIndex === index;
 
-            {/* Slide Content */}
-            <div className="relative z-10 w-full h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center py-10">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-                
-                {/* Left Info Column */}
-                <div className="md:col-span-7 flex flex-col items-start space-y-4 text-left">
-                  
-                  {/* Category & Tag */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full border ${slide.badgeColor} backdrop-blur-md`}>
-                      <Sparkles className="w-3.5 h-3.5" />
-                      {slide.tag}
-                    </span>
-                    <span className="text-xs text-zinc-300 font-medium px-2.5 py-1 rounded-full bg-zinc-800/60 border border-zinc-700/50">
-                      {slide.category}
-                    </span>
-                  </div>
-
-                  {/* Rating & Read Time Meta */}
-                  <div className="flex items-center gap-4 text-xs sm:text-sm text-zinc-300 pt-1">
-                    <div className="flex items-center gap-1 text-amber-400 font-semibold">
-                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      <span>{slide.rating}</span>
-                      <span className="text-zinc-400 font-normal">({slide.reviewsCount})</span>
-                    </div>
-                    <span className="text-zinc-600">•</span>
-                    <div className="flex items-center gap-1.5 text-zinc-300 font-medium">
-                      <Clock className="w-4 h-4 text-blue-400" />
-                      <span>{slide.readTime}</span>
-                    </div>
-                  </div>
-
-                  {/* Title */}
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold tracking-tight text-white leading-tight drop-shadow-md">
-                    {slide.title}
-                  </h1>
-
-                  {/* Author Info */}
-                  <div className="flex items-center gap-2 text-sm text-zinc-300">
-                    <span className="text-zinc-400">By</span>
-                    <span className="font-semibold text-white">{slide.author}</span>
-                    <span className="text-zinc-500">•</span>
-                    <span className="text-xs text-zinc-400 italic">{slide.authorTitle}</span>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-sm sm:text-base text-zinc-300 line-clamp-3 md:line-clamp-none max-w-2xl font-normal leading-relaxed">
-                    {slide.description}
-                  </p>
-
-                  {/* CTA Action Buttons */}
-                  <div className="flex items-center gap-3 pt-3 w-full sm:w-auto flex-wrap">
-                    <button className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-white bg-linear-to-r ${slide.accentColor} hover:opacity-95 shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all duration-200 cursor-pointer`}>
-                      <BookOpen className="w-4 h-4" />
-                      <span>{slide.primaryCta}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-
-                    <button className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl font-medium text-sm text-zinc-200 bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700/60 active:scale-[0.98] transition-all duration-200 cursor-pointer backdrop-blur-md">
-                      <Bookmark className="w-4 h-4 text-zinc-400" />
-                      <span>{slide.secondaryCta}</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Right Book Cover Column */}
-                <div className="md:col-span-5 flex justify-center md:justify-end">
-                  <div className="relative group w-44 sm:w-56 md:w-64 lg:w-72 aspect-3/4 rounded-2xl overflow-hidden shadow-2xl border-2 border-zinc-700/50 bg-zinc-800/80 transition-transform duration-500 hover:scale-105">
-                    <Image
-                      src={slide.coverImage}
-                      alt={slide.title}
-                      fill
-                      sizes="(max-width: 640px) 176px, (max-width: 768px) 224px, 288px"
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-linear-to-tr from-zinc-950/80 via-transparent to-white/10 opacity-70" />
-                  </div>
-                </div>
-
+          return (
+            <SwiperSlide key={slide.id} className="relative w-full h-full">
+              {/* Full-width Background Image Container */}
+              <div className="absolute inset-0 z-0">
+                <Image
+                  src={slide.bgImage}
+                  alt="Slider Background"
+                  fill
+                  priority
+                  className="object-cover object-center w-full h-full scale-105 filter brightness-75 transition-transform duration-10000 ease-out"
+                  sizes="100vw"
+                  unoptimized
+                />
+                {/* Dark Aesthetic Overlays */}
+                <div className="absolute inset-0 bg-linear-to-t from-[#0a0a0c] via-[#0a0a0c]/70 to-[#0a0a0c]/50" />
+                <div className="absolute inset-0 bg-linear-to-r from-[#0a0a0c] via-[#0a0a0c]/80 to-transparent" />
               </div>
-            </div>
-          </SwiperSlide>
-        ))}
+
+              {/* Banner Slide Content with Framer Motion Fade-In Animations */}
+              <div className="relative z-10 w-full h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center py-16">
+                <div className="max-w-3xl space-y-6 text-left">
+                  
+                  {/* Subheading Badge */}
+                  <motion.div
+                    key={`badge-${slide.id}-${isActive}`}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="flex items-center gap-2"
+                  >
+                    <span className={`inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-mono font-semibold uppercase tracking-widest rounded-none border ${slide.badgeColor} backdrop-blur-md shadow-sm`}>
+                      <Sparkles className="w-3.5 h-3.5" />
+                      {slide.subheading}
+                    </span>
+                  </motion.div>
+
+                  {/* Dynamic Main Large Banner Tagline Fade-In */}
+                  <motion.h1
+                    key={`title-${slide.id}-${isActive}`}
+                    initial={{ opacity: 0, y: 25 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white tracking-tight leading-[1.1] drop-shadow-lg"
+                  >
+                    {slide.titlePrefix}{" "}
+                    <span className={`text-transparent bg-clip-text bg-linear-to-r ${slide.accentColor}`}>
+                      {slide.highlightText}
+                    </span>
+                  </motion.h1>
+
+                  {/* Subtitle Description Fade-In */}
+                  <motion.p
+                    key={`desc-${slide.id}-${isActive}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.35 }}
+                    className="text-base sm:text-lg text-zinc-300 max-w-2xl font-normal leading-relaxed"
+                  >
+                    {slide.description}
+                  </motion.p>
+
+                  {/* Primary & Secondary CTA Buttons with Hover & Tap Scaling */}
+                  <motion.div
+                    key={`cta-${slide.id}-${isActive}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.5 }}
+                    className="flex items-center gap-4 pt-4 flex-wrap"
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.96 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    >
+                      <Link
+                        href={slide.primaryLink || "/e-books"}
+                        className="inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-none font-semibold text-sm text-white bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 transition-all shadow-xl shadow-rose-600/25 cursor-pointer uppercase tracking-wider"
+                      >
+                        <BookOpen className="w-4 h-4" />
+                        <span>{slide.primaryCta || "Browse Ebooks"}</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </motion.div>
+
+                    <motion.div
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.96 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    >
+                      <Link
+                        href={slide.secondaryLink || "/dashboard/writer"}
+                        className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-none font-medium text-sm text-zinc-200 bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/80 transition-all cursor-pointer backdrop-blur-md uppercase tracking-wider"
+                      >
+                        <Compass className="w-4 h-4 text-rose-400" />
+                        <span>{slide.secondaryCta || "Publish Your Work"}</span>
+                      </Link>
+                    </motion.div>
+                  </motion.div>
+
+                </div>
+              </div>
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
 
-     
+      {/* Custom Pagination Container */}
+      <div className="hero-pagination absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2" />
     </section>
   );
 }
-

@@ -38,6 +38,7 @@ export async function GET(req) {
               currency: session.currency ? session.currency.toUpperCase() : 'USD',
               paymentMethod: session.payment_method_types?.[0] || 'card',
               status: session.payment_status,
+              type: session.metadata?.type || 'ebook',
             }),
           })
         } catch (dbError) {
@@ -54,6 +55,8 @@ export async function GET(req) {
         amountTotal: session.amount_total ? (session.amount_total / 100).toFixed(2) : '0.00',
         currency: session.currency ? session.currency.toUpperCase() : 'USD',
         paymentMethod: session.payment_method_types?.[0] || 'card',
+        status: session.payment_status,
+        type: session.metadata?.type || 'ebook',
         createdAt: session.created ? new Date(session.created * 1000).toISOString() : new Date().toISOString(),
       })
     }

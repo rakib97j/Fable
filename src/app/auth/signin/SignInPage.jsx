@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "@/lib/auth-client";
+import { authClient, signIn } from "@/lib/auth-client";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
 
 export default function SignInPage() {
@@ -49,6 +49,14 @@ export default function SignInPage() {
       setIsLoading(false);
     }
   };
+
+
+
+  const handelGoogleSingUp = async () => {
+      await authClient.signIn.social({
+        provider:"google"
+      })
+    }
 
   return (
     <div className="min-h-screen w-full bg-[#0a0a0c] text-white flex flex-col lg:flex-row font-sans selection:bg-rose-500 selection:text-white">
@@ -98,7 +106,7 @@ export default function SignInPage() {
           {/* GOOGLE SIGN IN BUTTON (UI ONLY) */}
           <button
             type="button"
-            onClick={() => {}}
+            onClick={handelGoogleSingUp}
             className="w-full py-3.5 px-4 mb-6 bg-[#121216] hover:bg-zinc-800/90 border border-zinc-800/90 rounded-xl text-sm font-medium text-zinc-200 hover:text-white transition-all flex items-center justify-center gap-3 cursor-pointer shadow-sm active:scale-[0.99]"
           >
             <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">

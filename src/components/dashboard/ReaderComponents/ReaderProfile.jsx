@@ -21,7 +21,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 
-import { getUserBookmarks } from "@/lib/actions/eBooks";
+import { getUserBookmarks, getUserPurchases } from "@/lib/actions/eBooks";
 
 export default function ReaderProfile() {
   const { data: session, isPending: sessionLoading } = useSession();
@@ -32,6 +32,7 @@ export default function ReaderProfile() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("general"); // 'general' | 'preferences'
   const [bookmarkCount, setBookmarkCount] = useState(0);
+  const [purchasedCount, setPurchasedCount] = useState(0);
   
   const [saveSuccess, setSaveSuccess] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -87,20 +88,26 @@ export default function ReaderProfile() {
     }
   }, [session, sessionLoading]);
 
-  // Fetch real bookmark count for user
+  // Fetch real bookmark & purchase count for user
   useEffect(() => {
-    async function loadBookmarkCount() {
+    async function loadUserStats() {
       if (!userIdStr) return;
       try {
-        const res = await getUserBookmarks(userIdStr);
-        if (res?.success && Array.isArray(res.data)) {
-          setBookmarkCount(res.data.length);
+        const [bmRes, purRes] = await Promise.all([
+          getUserBookmarks(userIdStr),
+          getUserPurchases(userIdStr),
+        ]);
+        if (bmRes?.success && Array.isArray(bmRes.data)) {
+          setBookmarkCount(bmRes.data.length);
+        }
+        if (purRes?.success && Array.isArray(purRes.data)) {
+          setPurchasedCount(purRes.data.length);
         }
       } catch (err) {
-        console.error("Error loading bookmark count:", err);
+        console.error("Error loading user stats:", err);
       }
     }
-    loadBookmarkCount();
+    loadUserStats();
   }, [userIdStr]);
 
   const handleInputChange = (e) => {
@@ -262,7 +269,7 @@ export default function ReaderProfile() {
               <BookOpen className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-serif font-bold text-white group-hover:text-rose-100 transition-colors">12</p>
+          <p className="text-2xl font-serif font-bold text-white group-hover:text-rose-100 transition-colors">{purchasedCount}</p>
           <p className="text-xs text-zinc-500 group-hover:text-zinc-400 transition-colors">Active in library &rarr;</p>
         </Link>
 
