@@ -403,24 +403,45 @@ export const recordPaymentInDB = async (paymentData) => {
   }
 };
 
-export const getUserPurchases = async (userId) => {
+export const getUserPurchases = async (userId, userEmail) => {
    // JWT token Get
   const { token } = await auth.api.getToken({
     headers: await headers(),
   });
   try {
-    if (!baseUrl || !userId) return { success: true, data: [] };
-    const res = await fetch(`${baseUrl}/api/purchases/${encodeURIComponent(userId)}`, {
+    const identifier = userId || userEmail;
+    if (!baseUrl || !identifier) return { success: true, data: [] };
+
+    // Try fetching by userId / identifier
+    const res = await fetch(`${baseUrl}/api/purchases/${encodeURIComponent(identifier)}`, {
       cache: "no-store",
       headers: {
         authorization: `Bearer ${token}`,
       },
     });
+
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data)) return { success: true, data };
-      if (Array.isArray(data?.data)) return { success: true, data: data.data };
+      const list = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+      if (list.length > 0) return { success: true, data: list };
     }
+
+    // Fallback: If searching by ID returned 0 items and email exists, search by user email
+    if (userEmail && userEmail !== identifier) {
+      const emailRes = await fetch(`${baseUrl}/api/purchases/${encodeURIComponent(userEmail)}`, {
+        cache: "no-store",
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (emailRes.ok) {
+        const emailData = await emailRes.json();
+        const emailList = Array.isArray(emailData) ? emailData : Array.isArray(emailData?.data) ? emailData.data : [];
+        if (emailList.length > 0) return { success: true, data: emailList };
+      }
+    }
+
     return { success: true, data: [] };
   } catch (error) {
     console.error("getUserPurchases error:", error);

@@ -13,6 +13,7 @@ export default function PurchasedEbooksClientComponent() {
   const { data: session, isPending: sessionLoading } = useSession();
   const user = session?.user;
   const userIdStr = user?.id || user?._id;
+  const userEmail = user?.email;
 
   const [purchasedBooks, setPurchasedBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,13 +21,13 @@ export default function PurchasedEbooksClientComponent() {
 
   useEffect(() => {
     async function fetchPurchasedEbooks() {
-      if (!userIdStr) {
+      if (!userIdStr && !userEmail) {
         if (!sessionLoading) setLoading(false);
         return;
       }
       setLoading(true);
       try {
-        const res = await getUserPurchases(userIdStr);
+        const res = await getUserPurchases(userIdStr, userEmail);
         if (res?.success && Array.isArray(res.data)) {
           setPurchasedBooks(res.data);
         }
@@ -38,7 +39,7 @@ export default function PurchasedEbooksClientComponent() {
     }
 
     fetchPurchasedEbooks();
-  }, [userIdStr, sessionLoading]);
+  }, [userIdStr, userEmail, sessionLoading]);
 
   const totalPages = Math.ceil(purchasedBooks.length / ITEMS_PER_PAGE) || 1;
 

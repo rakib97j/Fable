@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
+import { usePathname, useRouter } from "next/navigation";
+import { useSession, signOut } from "@/lib/auth-client";
 import {
   LayoutDashboard,
   BookOpen,
@@ -19,11 +19,12 @@ import {
   Receipt,
   Menu,
   X,
-  
+  LogOut,
 } from "lucide-react";
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { data: session } = useSession();
@@ -126,9 +127,21 @@ export default function DashboardSidebar() {
       </nav>
 
       {/* Footer info in sidebar */}
-      <div className="p-4 border-t border-zinc-800/80 text-[11px] text-zinc-500 flex items-center justify-between">
-        <span>Fable Workspace For <span className="font-bold text-rose-500 uppercase" >{role}</span> </span>
-        <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
+      <div className="p-4 border-t border-zinc-800/80 flex flex-col gap-2">
+        <button
+          onClick={async () => {
+            await signOut();
+            router.push("/auth/signin");
+          }}
+          className="flex items-center gap-2.5 px-3.5 py-2 rounded-lg text-sm font-medium text-rose-400 hover:bg-rose-500/10 transition-colors w-full text-left cursor-pointer"
+        >
+          <LogOut className="w-4 h-4 text-rose-500" />
+          <span>Log Out</span>
+        </button>
+        <div className="text-[11px] text-zinc-500 flex items-center justify-between pt-1">
+          <span>Fable Workspace For <span className="font-bold text-rose-500 uppercase" >{role}</span> </span>
+          <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
+        </div>
       </div>
     </div>
   );

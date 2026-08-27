@@ -35,13 +35,20 @@ export default function SignInPage() {
       const { data, error: authError } = await signIn.email({
         email: formData.email,
         password: formData.password,
-        callbackURL: callbackUrl,
       });
 
       if (authError) {
         setError(authError.message || "Invalid email or password. Please try again.");
       } else {
-        router.push(callbackUrl);
+        // Fetch session to determine role for redirection
+        const sessionRes = await authClient.getSession();
+        const role = (sessionRes?.data?.user?.role || "reader").toLowerCase();
+
+        if (role === "writer" || role === "admin") {
+          router.push("/dashboard");
+        } else {
+          router.push(callbackUrl !== "/" ? callbackUrl : "/");
+        }
       }
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");

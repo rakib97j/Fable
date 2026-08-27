@@ -19,38 +19,12 @@ export async function GET(req) {
     const session = await stripe.checkout.sessions.retrieve(sessionId)
 
     if (session.payment_status === 'paid') {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9090'
-
-      // Prevent sending 2 times (deduplicate by session ID)
-      if (!recordedSessions.has(session.id)) {
-        recordedSessions.add(session.id)
-
-        try {
-          await fetch(`${baseUrl}/api/payment`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              sessionId: session.id,
-              ebookId: session.metadata?.ebookId || null,
-              userId: session.metadata?.userId || null,
-              userEmail: session.customer_details?.email || session.metadata?.userEmail || null,
-              amount: session.amount_total ? session.amount_total / 100 : 0,
-              currency: session.currency ? session.currency.toUpperCase() : 'USD',
-              paymentMethod: session.payment_method_types?.[0] || 'card',
-              status: session.payment_status,
-              type: session.metadata?.type || 'ebook',
-            }),
-          })
-        } catch (dbError) {
-          console.error('Failed to post payment data to /api/payment:', dbError.message)
-        }
-      }
-
       return NextResponse.json({
         success: true,
         paid: true,
         sessionId: session.id,
         ebookId: session.metadata?.ebookId || null,
+        userId: session.metadata?.userId || null,
         customerEmail: session.customer_details?.email || session.metadata?.userEmail || null,
         amountTotal: session.amount_total ? (session.amount_total / 100).toFixed(2) : '0.00',
         currency: session.currency ? session.currency.toUpperCase() : 'USD',

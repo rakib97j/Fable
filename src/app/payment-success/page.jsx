@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, Suspense } from "react";
+import React, { useEffect, useState, useRef, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
@@ -22,9 +22,13 @@ import {
   ChevronRight,
   BookmarkCheck,
 } from "lucide-react";
-import { getEBookById } from "@/lib/actions/eBooks";
+import { getEBookById, recordPaymentInDB } from "@/lib/actions/eBooks";
+import { useSession } from "@/lib/auth-client";
 
 function PaymentSuccessContent() {
+  const { data: session } = useSession();
+  const currentUser = session?.user;
+
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const ebookIdParam = searchParams.get("ebook_id") || searchParams.get("ebookId");
@@ -34,6 +38,8 @@ function PaymentSuccessContent() {
   const [ebookDetails, setEbookDetails] = useState(null);
   const [error, setError] = useState("");
 
+  const processedSessionRef = useRef(null);
+
   useEffect(() => {
     async function verifyAndFetch() {
       if (!sessionId) {
@@ -41,6 +47,11 @@ function PaymentSuccessContent() {
         setError("No payment session ID found.");
         return;
       }
+
+      if (processedSessionRef.current === sessionId) {
+        return;
+      }
+      processedSessionRef.current = sessionId;
 
       try {
         const verifyRes = await fetch(
@@ -50,6 +61,24 @@ function PaymentSuccessContent() {
 
         if (verifyData.success && verifyData.paid) {
           setSessionDetails(verifyData);
+
+          // Post payment data to backend database using authenticated Server Action (EXACTLY ONCE)
+          try {
+            await recordPaymentInDB({
+              sessionId: verifyData.sessionId,
+              ebookId: verifyData.ebookId || ebookIdParam,
+              userId: verifyData.userId || currentUser?.id || currentUser?._id,
+              userEmail: verifyData.customerEmail || currentUser?.email,
+
+              amount: parseFloat(verifyData.amountTotal || 0),
+              currency: verifyData.currency || "USD",
+              paymentMethod: verifyData.paymentMethod || "card",
+              status: verifyData.status || "paid",
+              type: verifyData.type || "ebook",
+            });
+          } catch (dbErr) {
+            console.error("Failed to post payment in recordPaymentInDB:", dbErr);
+          }
 
           const targetEbookId = verifyData.ebookId || ebookIdParam;
           if (targetEbookId) {
@@ -102,7 +131,7 @@ function PaymentSuccessContent() {
           <div className="w-20 h-20 rounded-3xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 shadow-xl shadow-rose-500/5">
             <BookX className="w-10 h-10" />
           </div>
-          
+
           <div className="space-y-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider bg-rose-500/10 text-rose-400 rounded-full border border-rose-500/20">
               Payment Unverified
@@ -142,10 +171,10 @@ function PaymentSuccessContent() {
   const pricePaid = sessionDetails.amountTotal || "0.00";
   const formattedDate = sessionDetails.createdAt
     ? new Date(sessionDetails.createdAt).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
     : "Just now";
 
   return (
@@ -157,7 +186,7 @@ function PaymentSuccessContent() {
       <div className="max-w-2xl w-full flex flex-col items-center relative z-10">
         {/* Main Success Container */}
         <div className="w-full rounded-3xl bg-[#121216]/80 border border-zinc-800/80 shadow-2xl p-6 sm:p-10 backdrop-blur-2xl space-y-8">
-          
+
           {/* Header Banner & Animated Badge */}
           <div className="flex flex-col items-center text-center space-y-4">
             <div className="relative">
@@ -185,7 +214,7 @@ function PaymentSuccessContent() {
           {ebookDetails ? (
             <div className="p-5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex flex-col sm:flex-row items-center gap-5 relative overflow-hidden group hover:border-zinc-700/80 transition-all">
               <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl pointer-events-none" />
-              
+
               {/* Cover Image */}
               {coverImage ? (
                 <div className="relative w-24 h-32 shrink-0 rounded-xl bg-zinc-950 border border-zinc-800 overflow-hidden shadow-lg group-hover:scale-105 transition-transform duration-300">

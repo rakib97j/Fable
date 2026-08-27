@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button, Avatar } from "@heroui/react";
 import {
   BookOpen,
@@ -39,10 +39,13 @@ export default function Navbar() {
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   ];
 
+  const router = useRouter();
+
   const handleSignOut = async () => {
     setIsProfileDropdownOpen(false);
     setIsMobileMenuOpen(false);
     await signOut();
+    router.push("/auth/signin");
   };
 
   const getInitials = (name) => {
