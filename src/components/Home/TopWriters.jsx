@@ -91,7 +91,7 @@ export default function TopWriters() {
               >
                 <Link
                   href={writerId ? `/writers/${writerId}` : "/writers"}
-                  className="group relative bg-[#121215] p-7 sm:p-8 border border-zinc-800/80 hover:border-rose-600/60 hover:shadow-[0_10px_30px_-10px_rgba(248,59,96,0.25)] transition-all duration-300 flex flex-col justify-between min-h-55 rounded-none block h-full"
+                  className="group relative bg-[#121215] p-7 sm:p-8 border border-zinc-800/80 hover:border-rose-600/60 hover:shadow-[0_10px_30px_-10px_rgba(248,59,96,0.25)] transition-all duration-300  flex-col justify-between min-h-55 rounded-none block h-full"
                 >
                   {/* Top Row: Avatar / Image */}
                   <div className="mb-6">
@@ -123,10 +123,7 @@ export default function TopWriters() {
                       {writerName}
                     </h3>
 
-                    {/* Dynamic Published Count */}
-                    <p className="text-sm text-zinc-400 font-normal">
-                      {writer.publishedCount || 0} published
-                    </p>
+                    
                   </div>
                 </Link>
               </motion.div>

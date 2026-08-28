@@ -19,7 +19,7 @@ export default function FeaturedEbooks() {
         if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
           setEbooks(res.data);
         } else {
-          // Fallback direct client fetch to /api/e-books/random if available
+          
           const rawRes = await fetch("/api/e-books/random", { cache: "no-store" }).catch(() => null);
           if (rawRes && rawRes.ok) {
             const rawData = await rawRes.json().catch(() => ({}));

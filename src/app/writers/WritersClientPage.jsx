@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Feather, User, Search,  ArrowLeft } from "lucide-react";
 import { getAllWriters } from "@/lib/actions/userAction";
+import { getEBooks } from "@/lib/actions/eBooks";
 
 export default function WritersClientPage() {
   const [writers, setWriters] = useState([]);
@@ -14,9 +15,50 @@ export default function WritersClientPage() {
   useEffect(() => {
     async function loadWriters() {
       try {
-        const res = await getAllWriters();
-        if (res?.success && Array.isArray(res.data)) {
-          setWriters(res.data);
+        const [writersRes, ebooksRes] = await Promise.all([
+          getAllWriters(),
+          getEBooks(),
+        ]);
+
+        const allEbooks =
+          ebooksRes?.success && Array.isArray(ebooksRes.data)
+            ? ebooksRes.data
+            : [];
+
+        if (writersRes?.success && Array.isArray(writersRes.data)) {
+          const writersWithCount = writersRes.data.map((w) => {
+            const wId = String(w._id || w.id || "");
+            const wEmail = (w.email || "").toLowerCase();
+            const wName = (w.name || "").toLowerCase();
+
+            const matchingBooks = allEbooks.filter((b) => {
+              const bStatus = (b.status || "published").toLowerCase();
+              if (bStatus === "pending" || bStatus === "unpublished") return false;
+
+              const bWriterId = String(b.writerId || b.authorId || "");
+              const bWriterEmail = (b.writerEmail || "").toLowerCase();
+              const bWriterName = (b.writerName || b.author || "").toLowerCase();
+
+              const matchId = Boolean(wId && bWriterId && wId === bWriterId);
+              const matchEmail = Boolean(wEmail && bWriterEmail && wEmail === bWriterEmail);
+              const matchName = Boolean(wName && bWriterName && wName === bWriterName);
+
+              return matchId || matchEmail || matchName;
+            });
+
+            const publishedCount = Math.max(
+              w.publishedCount || 0,
+              Array.isArray(w.publishedBooks) ? w.publishedBooks.length : 0,
+              matchingBooks.length
+            );
+
+            return {
+              ...w,
+              publishedCount,
+            };
+          });
+
+          setWriters(writersWithCount);
         }
       } catch (error) {
         console.error("Failed to load writers:", error);

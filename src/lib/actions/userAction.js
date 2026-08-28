@@ -6,16 +6,10 @@ import { auth } from "../auth";
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:9090";
 
 export async function getRandomWriters() {
-   // JWT token Get
-  const { token } = await auth.api.getToken({
-    headers: await headers(),
-  });
+ 
   try {
     const res = await fetch(`${baseUrl}/api/users/randomWriters`, {
       cache: "no-store",
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
 
     });
     if (!res.ok) return { success: false, data: [] };
@@ -28,17 +22,11 @@ export async function getRandomWriters() {
 }
 
 export async function getAllWriters() {
-   // JWT token Get
-  const { token } = await auth.api.getToken({
-    headers: await headers(),
-  });
+   
   try {
     const res = await fetch(`${baseUrl}/api/users/writers`, {
       cache: "no-store",
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-
+  
     });
     if (!res.ok) return { success: false, data: [] };
     const data = await res.json();

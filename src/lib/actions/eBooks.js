@@ -93,15 +93,10 @@ export const AddEBooks = async (newEBookData) => {
 
 // All ebooks for Browser E-Books 
 export const getEBooks = async () => {
-  // JWT token Get
-  const { token } = await auth.api.getToken({
-    headers: await headers(),
-  });
+  
     try {
         if (baseUrl) {
-            const res = await fetch(`${baseUrl}/api/e-books`, { cache: 'no-store' ,headers: {
-        authorization: `Bearer ${token}`,
-      },});
+            const res = await fetch(`${baseUrl}/api/e-books`, { cache: 'no-store'});
 
             if (res.ok) {
                 const data = await res.json();
@@ -161,16 +156,11 @@ export const GetWriterEBooks = getEBooksByWriter;
 
 // Random ebooks for Featured E-Books
 export const getRandomEBooks = async () => {
-  // JWT token Get
-  const { token } = await auth.api.getToken({
-    headers: await headers(),
-  });
+ 
     try {
         if (baseUrl) {
             const url = `${baseUrl}/api/e-books/random`;
-            const res = await fetch(url, { cache: 'no-store',headers: {
-        authorization: `Bearer ${token}`,
-      },});
+            const res = await fetch(url, { cache: 'no-store'});
 
             if (res.ok) {
                 const data = await res.json();

@@ -15,6 +15,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { getWriterDetails } from "@/lib/actions/userAction";
+import { getEBooksByWriter, getEBooks } from "@/lib/actions/eBooks";
 
 export default function WriterDetailsClient({ writerId }) {
   const [writer, setWriter] = useState(null);
@@ -26,9 +27,54 @@ export default function WriterDetailsClient({ writerId }) {
       if (!writerId) return;
       setIsLoading(true);
       try {
-        const res = await getWriterDetails(writerId);
+        const [res, writerBooksRes, allEbooksRes] = await Promise.all([
+          getWriterDetails(writerId),
+          getEBooksByWriter(writerId),
+          getEBooks()
+        ]);
+
         if (res?.success && res.data) {
-          setWriter(res.data);
+          const writerData = res.data;
+          const initialBooks = Array.isArray(writerData.publishedBooks) ? writerData.publishedBooks : [];
+          
+          const writerBooks = writerBooksRes?.success && Array.isArray(writerBooksRes.data) ? writerBooksRes.data : [];
+          const allEbooks = allEbooksRes?.success && Array.isArray(allEbooksRes.data) ? allEbooksRes.data : [];
+
+          const wId = String(writerData._id || writerData.id || writerId || "");
+          const wEmail = (writerData.email || "").toLowerCase();
+          const wName = (writerData.name || "").toLowerCase();
+
+          const matchingAllEbooks = allEbooks.filter((b) => {
+            const bStatus = (b.status || "published").toLowerCase();
+            if (bStatus === "pending" || bStatus === "unpublished") return false;
+
+            const bWriterId = String(b.writerId || b.authorId || "");
+            const bWriterEmail = (b.writerEmail || "").toLowerCase();
+            const bWriterName = (b.writerName || b.author || "").toLowerCase();
+
+            const matchId = Boolean(wId && bWriterId && wId === bWriterId);
+            const matchEmail = Boolean(wEmail && bWriterEmail && wEmail === bWriterEmail);
+            const matchName = Boolean(wName && bWriterName && wName === bWriterName);
+
+            return matchId || matchEmail || matchName;
+          });
+
+          // Merge all published books avoiding duplicates
+          const booksMap = new Map();
+          [...initialBooks, ...writerBooks, ...matchingAllEbooks].forEach((book) => {
+            const status = (book.status || "published").toLowerCase();
+            if (status !== "pending" && status !== "unpublished") {
+              const bKey = String(book._id || book.id || book.title);
+              if (!booksMap.has(bKey)) {
+                booksMap.set(bKey, book);
+              }
+            }
+          });
+
+          setWriter({
+            ...writerData,
+            publishedBooks: Array.from(booksMap.values())
+          });
         } else {
           setError(res?.message || "Writer not found.");
         }
