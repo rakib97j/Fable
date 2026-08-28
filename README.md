@@ -58,7 +58,6 @@
       <h3>💳 Commerce & Theme Experience</h3>
       <ul>
         <li><b>Stripe Checkout</b>: Secure digital purchases with instant order completion.</li>
-        <li><b>Dark / Light Mode</b>: Fluid theme switching powered by <code>next-themes</code> & <code>HeroUI</code>.</li>
         <li><b>Micro-Animations</b>: Butter-smooth motion via <code>framer-motion</code>.</li>
       </ul>
     </td>
@@ -148,6 +147,6 @@ fable/
 
 <div align="center">
 
-Made with ❤️ for Readers & Writers Worldwide
+Made By RAKIBUL HASSAN RAKIB 
 
 </div>
