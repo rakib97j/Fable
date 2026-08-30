@@ -114,7 +114,7 @@ export default function SignInPage() {
           <button
             type="button"
             onClick={handelGoogleSingUp}
-            className="w-full py-3.5 px-4 mb-6 bg-[#121216] hover:bg-zinc-800/90 border border-zinc-800/90 rounded-xl text-sm font-medium text-zinc-200 hover:text-white transition-all flex items-center justify-center gap-3 cursor-pointer shadow-sm active:scale-[0.99]"
+            className="w-full py-3.5 px-4 mb-6 bg-[#121216] hover:bg-zinc-800/90 border border-zinc-800/90  text-sm font-medium text-zinc-200 hover:text-white transition-all flex items-center justify-center gap-3 cursor-pointer shadow-sm active:scale-[0.99]"
           >
             <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
               <path
@@ -226,11 +226,8 @@ export default function SignInPage() {
             </Link>
           </div>
 
-          {/* DEMO INFO BADGE */}
-          <div className="mt-6 p-3 bg-[#121216] border border-zinc-800/70 text-xs font-mono text-zinc-400 flex items-center gap-2">
-            <span className="text-rose-400 font-semibold">Admin demo:</span>
-            <span>admin@fable.com / admin@fable.com</span>
-          </div>
+       
+        
 
         </div>
       </div>
