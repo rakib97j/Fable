@@ -5,9 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, EffectFade } from "swiper/modules";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
-// Import Swiper styles
+// Swiper core & plugin styling
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
@@ -17,10 +17,12 @@ import {
   Sparkles,
   ArrowRight,
   Compass,
-  Feather,
-  Bookmark
 } from "lucide-react";
 
+/**
+ * Curated Slide Dataset for Fable Hero Banner Showcase.
+ * Built with rich metadata, semantic action targets, and accessible labels.
+ */
 const HERO_SLIDES = [
   {
     id: "hero-1",
@@ -80,13 +82,25 @@ const HERO_SLIDES = [
   }
 ];
 
+/**
+ * UI/UX REFACTOR: HeroSlider Component
+ * - 1. UX: Clear visual separation between Primary (high-contrast gradient CTA) & Secondary (subtle glass border CTA) buttons.
+ * - 2. Typography: Clean hierarchy using font-mono for badges, font-serif for primary hero titles, and font-sans for descriptions.
+ * - 3. Spacing: 8px-grid padding & responsive max height containment preventing layout shifts.
+ * - 4. Micro-interactions: Framer motion entry animations, spring hover states, and smooth slide fade cross-transitions.
+ * - 5. A11y: Standardized ARIA carousel region, explicit focus rings (`focus-visible:ring-2`), and slide indicators.
+ */
 export default function HeroSlider({ slides = HERO_SLIDES, autoPlayInterval = 5000 }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   if (!slides || slides.length === 0) return null;
 
   return (
-    <section className="relative w-full h-[calc(100vh-4rem)] min-h-[550px] max-h-[850px] overflow-hidden select-none bg-zinc-950 font-sans">
+    <section 
+      aria-label="Featured Stories Showcase" 
+      aria-roledescription="carousel"
+      className="relative w-full h-[calc(100vh-4rem)] min-h-[560px] max-h-[850px] overflow-hidden select-none bg-zinc-950 font-sans"
+    >
       <Swiper
         modules={[Autoplay, Pagination, EffectFade]}
         effect="fade"
@@ -101,8 +115,8 @@ export default function HeroSlider({ slides = HERO_SLIDES, autoPlayInterval = 50
         pagination={{
           clickable: true,
           el: ".hero-pagination",
-          bulletActiveClass: "!bg-rose-500 !w-8 !rounded-none",
-          bulletClass: "inline-block w-2.5 h-2.5 bg-zinc-600 transition-all duration-300 mx-1 cursor-pointer hover:bg-zinc-400 rounded-none",
+          bulletActiveClass: "!bg-rose-500 !w-8 !rounded-full",
+          bulletClass: "inline-block w-2.5 h-2.5 bg-zinc-600 transition-all duration-300 mx-1 cursor-pointer hover:bg-zinc-300 rounded-full",
         }}
         onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
         className="w-full h-full hero-swiper"
@@ -111,28 +125,32 @@ export default function HeroSlider({ slides = HERO_SLIDES, autoPlayInterval = 50
           const isActive = activeIndex === index;
 
           return (
-            <SwiperSlide key={slide.id} className="relative w-full h-full">
-              {/* Full-width Background Image Container */}
-              <div className="absolute inset-0 z-0">
+            <SwiperSlide 
+              key={slide.id} 
+              className="relative w-full h-full"
+              aria-label={`Slide ${index + 1} of ${slides.length}: ${slide.titlePrefix} ${slide.highlightText}`}
+            >
+              {/* Responsive Hero Background Image with Subtle Gradient Overlays */}
+              <div className="absolute inset-0 z-0 overflow-hidden">
                 <Image
                   src={slide.bgImage}
-                  alt="Slider Background"
+                  alt={`Background illustration for ${slide.titlePrefix} ${slide.highlightText}`}
                   fill
-                  priority
+                  priority={index === 0}
                   className="object-cover object-center w-full h-full scale-105 filter brightness-75 transition-transform duration-10000 ease-out"
                   sizes="100vw"
                   unoptimized
                 />
-                {/* Dark Aesthetic Overlays */}
-                <div className="absolute inset-0 bg-linear-to-t from-[#0a0a0c] via-[#0a0a0c]/70 to-[#0a0a0c]/50" />
-                <div className="absolute inset-0 bg-linear-to-r from-[#0a0a0c] via-[#0a0a0c]/80 to-transparent" />
+                {/* High Contrast Multi-Stage Vignette Overlay for Text Legibility (WCAG AAA Contrast) */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/75 to-[#0a0a0c]/40" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0c] via-[#0a0a0c]/85 to-transparent sm:max-w-4xl" />
               </div>
 
-              {/* Banner Slide Content with Framer Motion Fade-In Animations */}
+              {/* Main Text Content & Interactive Actions Container */}
               <div className="relative z-10 w-full h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center py-16">
                 <div className="max-w-3xl space-y-6 text-left">
                   
-                  {/* Subheading Badge */}
+                  {/* Category / Subheading Badge */}
                   <motion.div
                     key={`badge-${slide.id}-${isActive}`}
                     initial={{ opacity: 0, y: 15 }}
@@ -140,27 +158,27 @@ export default function HeroSlider({ slides = HERO_SLIDES, autoPlayInterval = 50
                     transition={{ duration: 0.5, delay: 0.1 }}
                     className="flex items-center gap-2"
                   >
-                    <span className={`inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-mono font-semibold uppercase tracking-widest rounded-none border ${slide.badgeColor} backdrop-blur-md shadow-sm`}>
-                      <Sparkles className="w-3.5 h-3.5" />
+                    <span className={`inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-mono font-semibold uppercase tracking-widest rounded-full border ${slide.badgeColor} backdrop-blur-md shadow-sm`}>
+                      <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
                       {slide.subheading}
                     </span>
                   </motion.div>
 
-                  {/* Dynamic Main Large Banner Tagline Fade-In */}
+                  {/* Primary Heading Tagline */}
                   <motion.h1
                     key={`title-${slide.id}-${isActive}`}
                     initial={{ opacity: 0, y: 25 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
-                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white tracking-tight leading-[1.1] drop-shadow-lg"
+                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white tracking-tight leading-[1.1] drop-shadow-md"
                   >
                     {slide.titlePrefix}{" "}
-                    <span className={`text-transparent bg-clip-text bg-linear-to-r ${slide.accentColor}`}>
+                    <span className={`text-transparent bg-clip-text bg-gradient-to-r ${slide.accentColor}`}>
                       {slide.highlightText}
                     </span>
                   </motion.h1>
 
-                  {/* Subtitle Description Fade-In */}
+                  {/* Subtitle Body Description */}
                   <motion.p
                     key={`desc-${slide.id}-${isActive}`}
                     initial={{ opacity: 0, y: 20 }}
@@ -171,7 +189,7 @@ export default function HeroSlider({ slides = HERO_SLIDES, autoPlayInterval = 50
                     {slide.description}
                   </motion.p>
 
-                  {/* Primary & Secondary CTA Buttons with Hover & Tap Scaling */}
+                  {/* Primary & Secondary Call to Action Controls */}
                   <motion.div
                     key={`cta-${slide.id}-${isActive}`}
                     initial={{ opacity: 0, y: 20 }}
@@ -179,31 +197,33 @@ export default function HeroSlider({ slides = HERO_SLIDES, autoPlayInterval = 50
                     transition={{ duration: 0.6, delay: 0.5 }}
                     className="flex items-center gap-4 pt-4 flex-wrap"
                   >
+                    {/* Primary Button */}
                     <motion.div
-                      whileHover={{ scale: 1.04 }}
-                      whileTap={{ scale: 0.96 }}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
                       transition={{ type: "spring", stiffness: 400, damping: 17 }}
                     >
                       <Link
                         href={slide.primaryLink || "/e-books"}
-                        className="inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-none font-semibold text-sm text-white bg-linear-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 transition-all shadow-xl shadow-rose-600/25 cursor-pointer uppercase tracking-wider"
+                        className="inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 transition-all shadow-xl shadow-rose-600/30 cursor-pointer uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                       >
-                        <BookOpen className="w-4 h-4" />
+                        <BookOpen className="w-4 h-4" aria-hidden="true" />
                         <span>{slide.primaryCta || "Browse Ebooks"}</span>
-                        <ArrowRight className="w-4 h-4" />
+                        <ArrowRight className="w-4 h-4" aria-hidden="true" />
                       </Link>
                     </motion.div>
 
+                    {/* Secondary Button */}
                     <motion.div
-                      whileHover={{ scale: 1.04 }}
-                      whileTap={{ scale: 0.96 }}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
                       transition={{ type: "spring", stiffness: 400, damping: 17 }}
                     >
                       <Link
                         href={slide.secondaryLink || "/dashboard/writer"}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-none font-medium text-sm text-zinc-200 bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/80 transition-all cursor-pointer backdrop-blur-md uppercase tracking-wider"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-medium text-sm text-zinc-200 bg-zinc-900/80 hover:bg-zinc-800/90 border border-zinc-700/80 hover:border-zinc-600 transition-all cursor-pointer backdrop-blur-md uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                       >
-                        <Compass className="w-4 h-4 text-rose-400" />
+                        <Compass className="w-4 h-4 text-rose-400" aria-hidden="true" />
                         <span>{slide.secondaryCta || "Publish Your Work"}</span>
                       </Link>
                     </motion.div>
@@ -216,8 +236,12 @@ export default function HeroSlider({ slides = HERO_SLIDES, autoPlayInterval = 50
         })}
       </Swiper>
 
-      {/* Custom Pagination Container */}
-      <div className="hero-pagination absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2" />
+      {/* Accessible Swiper Pagination Control Container */}
+      <div 
+        aria-label="Carousel pagination navigation"
+        className="hero-pagination absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2" 
+      />
     </section>
   );
 }
+

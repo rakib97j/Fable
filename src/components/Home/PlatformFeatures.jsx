@@ -46,7 +46,7 @@ export default function PlatformFeatures() {
         transition={{ duration: 0.6 }}
         className="text-center max-w-3xl mx-auto space-y-3 mb-12"
       >
-        <span className="inline-flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-widest text-rose-400 bg-rose-500/10 px-3 py-1 border border-rose-500/20 rounded-none">
+        <span className="inline-flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-widest text-rose-400 bg-rose-500/10 px-3 py-1 border border-rose-500/20 rounded-full">
           <Sparkles className="w-3.5 h-3.5" />
           WHY CHOOSE FABLE
         </span>
@@ -69,9 +69,9 @@ export default function PlatformFeatures() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
-              className="p-6 bg-[#121215] border border-zinc-800/80 hover:border-zinc-700 transition-colors duration-200 rounded-none space-y-4 group"
+              className="p-6 bg-[#121215] border border-zinc-800/80 hover:border-zinc-700 transition-colors duration-200 rounded-2xl space-y-4 group"
             >
-              <div className={`p-3 rounded-none border ${feat.bgColor} ${feat.color} w-fit`}>
+              <div className={`p-3 rounded-xl border ${feat.bgColor} ${feat.color} w-fit`}>
                 <Icon className="w-6 h-6" />
               </div>
 

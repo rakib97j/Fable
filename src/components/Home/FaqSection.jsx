@@ -44,12 +44,12 @@ export default function FaqSection() {
         transition={{ duration: 0.6 }}
         className="text-center space-y-3 mb-12"
       >
-        <span className="inline-flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-3 py-1 border border-indigo-500/20 rounded-none">
+        <span className="inline-flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-3 py-1 border border-indigo-500/20 rounded-full">
           <HelpCircle className="w-3.5 h-3.5" />
           FREQUENTLY ASKED QUESTIONS
         </span>
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-white tracking-tight">
-          Got Questions? We've Got Answers.
+          Got Questions? We&apos;ve Got Answers.
         </h2>
         <p className="text-sm sm:text-base text-zinc-400 font-normal max-w-xl mx-auto">
           Everything you need to know about reading, purchasing, and publishing on Fable.
@@ -68,7 +68,7 @@ export default function FaqSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: idx * 0.08 }}
-              className="bg-[#121215] border border-zinc-800/80 rounded-none overflow-hidden transition-colors"
+              className="bg-[#121215] border border-zinc-800/80 rounded-2xl overflow-hidden transition-colors"
             >
               <button
                 type="button"

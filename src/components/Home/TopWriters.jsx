@@ -62,13 +62,13 @@ export default function TopWriters() {
           {[1, 2, 3].map((idx) => (
             <div
               key={idx}
-              className="bg-[#121215] p-7 sm:p-8 border border-zinc-800/80 rounded-none animate-pulse min-h-55 flex flex-col justify-between"
+              className="bg-[#121215] p-7 sm:p-8 border border-zinc-800/80 rounded-2xl animate-pulse min-h-55 flex flex-col justify-between"
             >
               <div className="w-16 h-16 rounded-full bg-zinc-800 mb-6" />
               <div className="space-y-3">
-                <div className="h-3 bg-zinc-800 rounded-none w-1/3" />
-                <div className="h-6 bg-zinc-800 rounded-none w-2/3" />
-                <div className="h-4 bg-zinc-800 rounded-none w-1/2" />
+                <div className="h-3 bg-zinc-800 rounded-md w-1/3" />
+                <div className="h-6 bg-zinc-800 rounded-md w-2/3" />
+                <div className="h-4 bg-zinc-800 rounded-md w-1/2" />
               </div>
             </div>
           ))}
@@ -91,7 +91,7 @@ export default function TopWriters() {
               >
                 <Link
                   href={writerId ? `/writers/${writerId}` : "/writers"}
-                  className="group relative bg-[#121215] p-7 sm:p-8 border border-zinc-800/80 hover:border-rose-600/60 hover:shadow-[0_10px_30px_-10px_rgba(248,59,96,0.25)] transition-all duration-300  flex-col justify-between min-h-55 rounded-none block h-full"
+                  className="group relative bg-[#121215] p-7 sm:p-8 border border-zinc-800/80 hover:border-rose-600/60 hover:shadow-[0_10px_30px_-10px_rgba(248,59,96,0.25)] transition-all duration-300 flex-col justify-between min-h-55 rounded-2xl block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
                 >
                   {/* Top Row: Avatar / Image */}
                   <div className="mb-6">

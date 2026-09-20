@@ -122,7 +122,7 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.name}
-                    className="p-2.5 rounded-none border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900/60 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-300 hover:text-rose-600 dark:hover:text-rose-400 transition-all duration-200"
+                    className="p-2.5 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900/60 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-300 hover:text-rose-600 dark:hover:text-rose-400 transition-all duration-200"
                   >
                     <Icon className="w-4 h-4" />
                   </a>
@@ -147,12 +147,12 @@ export default function Footer() {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3.5 py-2.5  text-sm bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl text-sm bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all"
                 />
               </div>
               <Button
                 type="submit"
-                className="w-full bg-linear-to-r from-rose-600 via-rose-500 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white text-sm font-medium py-2.5 rounded-none transition-all flex items-center justify-center gap-2 shadow-md shadow-rose-600/25"
+                className="w-full bg-linear-to-r from-rose-600 via-rose-500 to-pink-500 hover:from-rose-500 hover:to-pink-400 text-white text-sm font-medium py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md shadow-rose-600/25"
               >
                 <span>Subscribe</span>
                 <Send className="w-4 h-4" />

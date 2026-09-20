@@ -64,7 +64,7 @@ export default function TestimonialsSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: idx * 0.12 }}
-            className="p-7 bg-[#121215] border border-zinc-800/80 hover:border-rose-500/40 transition-colors duration-200 rounded-none flex flex-col justify-between space-y-6 group"
+            className="p-7 bg-[#121215] border border-zinc-800/80 hover:border-rose-500/40 transition-colors duration-200 rounded-2xl flex flex-col justify-between space-y-6 group"
           >
             <div className="space-y-4">
               {/* Star Rating */}
@@ -76,7 +76,7 @@ export default function TestimonialsSection() {
 
               {/* Quote Text */}
               <p className="text-sm sm:text-base text-zinc-300 font-serif italic leading-relaxed">
-                "{t.quote}"
+                &quot;{t.quote}&quot;
               </p>
             </div>
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import EBooksClientPage from '@/components/EBooks/EBooksClientPage';
 import { getEBooks } from '@/lib/actions/eBooks';
 
@@ -13,7 +13,13 @@ const EBooksPage = async () => {
 
   return (
     <main className="min-h-screen bg-[#0a0a0c]">
-      <EBooksClientPage initialData={initialData} />
+      <Suspense fallback={
+        <div className="w-full py-20 text-center text-zinc-400 font-mono text-xs">
+          Loading catalog...
+        </div>
+      }>
+        <EBooksClientPage initialData={initialData} />
+      </Suspense>
     </main>
   );
 };

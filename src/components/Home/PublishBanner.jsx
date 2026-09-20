@@ -13,11 +13,11 @@ export default function PublishBanner() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
         transition={{ duration: 0.6 }}
-        className="relative overflow-hidden bg-[#121215] border border-zinc-800/80 p-8 sm:p-10 md:p-12 shadow-2xl transition-all duration-300 rounded-none"
+        className="relative overflow-hidden bg-[#121215] border border-zinc-800/80 p-8 sm:p-10 md:p-12 shadow-2xl transition-all duration-300 rounded-3xl"
       >
         {/* Soft top-left red glow effect */}
         <div 
-          className="absolute -top-20 -left-20 w-80 h-80 bg-rose-600/10 rounded-none blur-3xl pointer-events-none" 
+          className="absolute -top-20 -left-20 w-80 h-80 bg-rose-600/10 rounded-full blur-3xl pointer-events-none" 
           aria-hidden="true" 
         />
         <div 
@@ -52,7 +52,7 @@ export default function PublishBanner() {
             >
               <Link
                 href="/dashboard/writer/add-ebook"
-                className="inline-flex items-center justify-center px-6 py-3.5 bg-[#f83b60] hover:bg-[#e02e52] active:bg-[#c92444] text-white font-semibold text-sm transition-all duration-200 shadow-lg shadow-rose-950/30 rounded-none uppercase tracking-wider cursor-pointer"
+                className="inline-flex items-center justify-center px-6 py-3.5 bg-[#f83b60] hover:bg-[#e02e52] active:bg-[#c92444] text-white font-semibold text-sm transition-all duration-200 shadow-lg shadow-rose-950/30 rounded-xl uppercase tracking-wider cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
               >
                 Start Writing Today
               </Link>
